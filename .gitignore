@@ -1,0 +1,5 @@
+# Folder
+__pycache__/
+.venv
+logs/
+src/ressources/frWac.bin
