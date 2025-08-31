@@ -1,5 +1,5 @@
 # Folder
 __pycache__/
 .venv
-logs/
+logs/solver.log
 .env
