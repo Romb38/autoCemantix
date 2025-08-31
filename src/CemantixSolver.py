@@ -8,10 +8,14 @@ from requests.structures import CaseInsensitiveDict
 from gensim.models import KeyedVectors
 import logging
 from src.configLoader import setup_logging
+import os
+import time
+from dotenv import load_dotenv
 
 class CemantixSolver:
     
     def __init__(self, config):
+        load_dotenv()
         setup_logging(config["log_level"], config["log_file"])
         self.logger = logging.getLogger(__name__)
 
@@ -84,8 +88,32 @@ class CemantixSolver:
                 time.sleep(self.api_delay)
         return None
 
+    def __log_and_notify(self, word, exec_time):
+        msg = f"Mot trouvé: {word}, Requêtes: {self.request_count}, Temps: {exec_time:.2f} sec"
+        self.logger.info("Résultat final → %s", msg)
+        token = os.getenv("NTFY_TOKEN")
+        subject = os.getenv("NTFY_SUBJECT")
+        os.system(f'ntfy publish --token {token} https://ntfy.standouda.fr/{subject} "{msg}"')
+        
+    def __filter_dictionnary(self,model):
+        self.logger.info("Remove invalid words from model")
+        with open(self.invalid_words_file, "rb") as f:
+            invalid_words = pickle.load(f)
+        invalid_words = set(invalid_words)
+        valid_words = [word for word in model.key_to_index if word not in invalid_words]
+        valid_vectors = [model[word] for word in valid_words]
+        filtered_model = KeyedVectors(vector_size=model.vector_size)
+        filtered_model.add_vectors(valid_words, valid_vectors)
+        filtered_model.save_word2vec_format(self.model_path, binary=True)
+        return
+
+
     def solve(self):
         self.logger.info("Solver started")
+        
+        start_time = time.time()
+        self.request_count = 0
+        
         self.logger.info("Loading model '%s'", self.model_path)
         model = KeyedVectors.load_word2vec_format(self.model_path, binary=True, unicode_errors="ignore")
         self.logger.info("Model loaded")
@@ -101,6 +129,7 @@ class CemantixSolver:
         for w in self.start_words:
             if w in self.invalid_words:
                 continue
+            self.request_count += 1 
             score = self.__get_score(w, day)
             if score is not None:
                 tested.add(w)
@@ -130,6 +159,7 @@ class CemantixSolver:
                 for neigh, _ in neighbors:
                     if neigh in tested or neigh in self.invalid_words:
                         continue
+                    self.request_count += 1 
                     score = self.__get_score(neigh, day)
                     if score is None:
                         continue
@@ -141,9 +171,11 @@ class CemantixSolver:
                         self.logger.info("New best: %s → %.4f", neigh, score)
                         if best_score >= 1.0:
                             self.logger.info("Solution found: %s → %.4f", best_word, best_score)
-                            return best_word, best_score
+                            break
 
                     time.sleep(self.api_delay)
+            if best_score >= 1.0:
+                break
 
             for item in new_candidates:
                 heapq.heappush(beam, item)
@@ -156,5 +188,10 @@ class CemantixSolver:
                 break
 
         self.logger.info("Solving ended")
+        
+        exec_time = time.time() - start_time
+        self.__log_and_notify(best_word, exec_time)
+        self.__filter_dictionnary(model)
+        
         return best_word, best_score
 
