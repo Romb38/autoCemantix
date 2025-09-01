@@ -108,7 +108,7 @@ class CemantixSolver:
         return
 
 
-    def solve(self):
+    def solve(self, day=None):
         self.logger.info("Solver started")
         
         start_time = time.time()
@@ -117,11 +117,12 @@ class CemantixSolver:
         self.logger.info("Loading model '%s'", self.model_path)
         model = KeyedVectors.load_word2vec_format(self.model_path, binary=True, unicode_errors="ignore")
         self.logger.info("Model loaded")
-
-        day = self.__get_puzzle_number()
+        
         if day is None:
-            return None
-
+            day = self.__get_puzzle_number()
+            if day is None:
+                return None
+        print(day)
         tested = set()
         beam = []
 
