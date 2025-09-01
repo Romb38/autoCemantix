@@ -31,28 +31,18 @@ class CemantixSolver:
         """
         @brief Initializes the solver with the provided configuration.
 
-        @param config Dictionary containing the following keys:
-            - log_level: Logging verbosity level.
-            - log_file: Path to the log file.
-            - invalid_dict_path: Path to the pickle file with invalid words.
-            - start_words: List of seed words for initialization.
-            - beam_size: Number of best candidates to keep at each iteration.
-            - topn: Number of similar words to retrieve from the model.
-            - api_delay: Delay (in seconds) between API requests.
-            - model_path: Path to the Word2Vec model.
-            - schema: HTTP or HTTPS.
-            - url: Domain name of the Cemantix website.
-            - user_agent: User-Agent header for HTTP requests.
-            - content_type: Content-Type for HTTP POST requests.
-            - max_retries: Maximum number of retries for failed API calls.
+        @param config Dictionary containing configuration keys (see configLoader).
         """
-    
         load_dotenv()
         setup_logging(config["log_level"], config["log_file"])
         self.logger = logging.getLogger(__name__)
 
+        if not(os.getenv("NTFY_TOKEN") and os.getenv("NTFY_URL") and os.getenv("NTFY_SUBJECT")):
+            self.logger.warn("No NTFY config found")
+
         self.invalid_words_file = config["invalid_dict_path"]
         self.invalid_words = self.__load_invalid_words()
+        self.daily_invalid_words = set()  # Temporary invalid words for this solving session
 
         self.start_words = config["start_words"]
         self.beam_size = config["beam_size"]
@@ -74,14 +64,12 @@ class CemantixSolver:
         })
         self.similar_cache = {}
 
-
     def __load_invalid_words(self):
         """
         @brief Loads the set of invalid words from the pickle file.
 
         @return A set of invalid words if the file exists, otherwise an empty set.
         """
-
         try:
             with open(self.invalid_words_file, "rb") as f:
                 return pickle.load(f)
@@ -90,21 +78,18 @@ class CemantixSolver:
 
     def __save_invalid_words(self):
         """
-        @brief Saves the current set of invalid words to the pickle file.
+        @brief Saves the current global invalid word list to the pickle file.
         """
         with open(self.invalid_words_file, "wb") as f:
             pickle.dump(self.invalid_words, f)
 
     def __mark_invalid(self, word):
-        
         """
-        @brief Adds a word to the invalid words set and persists the update.
+        @brief Marks a word as invalid for the current solving session only.
 
-        @param word The word to be marked as invalid.
+        @param word The word to mark as invalid.
         """
-
-        self.invalid_words.add(word)
-        self.__save_invalid_words()
+        self.daily_invalid_words.add(word)
 
     def __get_puzzle_number(self):
         """
@@ -112,8 +97,6 @@ class CemantixSolver:
 
         @return The puzzle number as an integer if found, otherwise None.
         """
-
-
         self.logger.info("Getting puzzle number")
         resp = requests.get(f"{self.schema}://{self.url}", headers=self.headers, timeout=30)
         if resp.status_code == 200:
@@ -134,7 +117,6 @@ class CemantixSolver:
 
         @return The similarity score (float between 0.0 and 1.0), or None if the request failed or word is invalid.
         """
-
         for attempt in range(self.max_retries):
             try:
                 url = f"{self.schema}://{self.url}/score?n={day}"
@@ -153,41 +135,47 @@ class CemantixSolver:
         return None
 
     def __log_and_notify(self, word, exec_time):
-
         """
         @brief Sends a notification when the solution is found.
-
-        Uses the ntfy notification service.
 
         @param word The found word (the solution).
         @param exec_time Execution time in seconds.
         """
-
         msg = f"Mot trouvé: {word}, Requêtes: {self.request_count}, Temps: {exec_time:.2f} sec"
         self.logger.info("Résultat final → %s", msg)
         token = os.getenv("NTFY_TOKEN")
         subject = os.getenv("NTFY_SUBJECT")
-        ntfyUrl = os.getenv("NTFY_URL")
-        if token and subject:
-            os.system(f'ntfy publish --token {token} {NTFY_URL}/{subject} "{msg}"')
-        
-    def __filter_dictionnary(self,model):
-        """
-        @brief Filters the Word2Vec model by removing invalid words and saves the updated model.
+        ntfy_url = os.getenv("NTFY_URL")
+        if token and subject and ntfy_url:
+            os.system(f'ntfy publish --token {token} {ntfy_url}/{subject} "{msg}"')
 
+    def __filter_dictionnary(self, model):
+        """
+        @brief Filters the Word2Vec model by removing both global and session invalid words.
+    
+        This also saves the merged invalid word list back to disk to allow future re-filtering.
+    
         @param model The original Word2Vec model to filter.
         """
-        self.logger.info("Remove invalid words from model")
-        with open(self.invalid_words_file, "rb") as f:
-            invalid_words = pickle.load(f)
-        invalid_words = set(invalid_words)
-        valid_words = [word for word in model.key_to_index if word not in invalid_words]
+        self.logger.info("Filtering model using invalid words")
+
+        # Combine all invalid words (persistent + session)
+        all_invalid = self.invalid_words.union(self.daily_invalid_words)
+
+        # Save the updated invalid word set to disk for future use
+        with open(self.invalid_words_file, "wb") as f:
+            pickle.dump(all_invalid, f)
+        self.logger.info("Saved %d invalid words to %s", len(all_invalid), self.invalid_words_file)
+
+        # Filter model
+        valid_words = [word for word in model.key_to_index if word not in self.daily_invalid_words]
         valid_vectors = [model[word] for word in valid_words]
         filtered_model = KeyedVectors(vector_size=model.vector_size)
         filtered_model.add_vectors(valid_words, valid_vectors)
-        filtered_model.save_word2vec_format(self.model_path, binary=True)
-        return
 
+        # Save filtered model
+        filtered_model.save_word2vec_format(self.model_path, binary=True)
+        self.logger.info("Filtered model saved to %s with %d words", self.model_path, len(valid_words))
 
     def solve(self, day=None):
         """
@@ -195,33 +183,29 @@ class CemantixSolver:
 
         @param day (Optional) Puzzle number to solve. If None, the current day's puzzle will be used.
 
-        @return A tuple (best_word, best_score) where:
-            - best_word: The guessed solution (str).
-            - best_score: Its similarity score (float, should be 1.0 if solved),
-            or None if the puzzle could not be solved.
+        @return A tuple (best_word, best_score) or None if no solution was found.
         """
         self.logger.info("Solver started")
-        
         start_time = time.time()
         self.request_count = 0
-        
+
         self.logger.info("Loading model '%s'", self.model_path)
         model = KeyedVectors.load_word2vec_format(self.model_path, binary=True, unicode_errors="ignore")
         self.logger.info("Model loaded")
-        
+
         if day is None:
             day = self.__get_puzzle_number()
             if day is None:
                 return None
-        print(day)
+
         tested = set()
         beam = []
 
-        # Initialisation
+        # Initial guesses
         for w in self.start_words:
-            if w in self.invalid_words:
+            if w in self.invalid_words or w in self.daily_invalid_words:
                 continue
-            self.request_count += 1 
+            self.request_count += 1
             score = self.__get_score(w, day)
             if score is not None:
                 tested.add(w)
@@ -249,9 +233,9 @@ class CemantixSolver:
                     self.similar_cache[word] = neighbors
 
                 for neigh, _ in neighbors:
-                    if neigh in tested or neigh in self.invalid_words:
+                    if neigh in tested or neigh in self.invalid_words or neigh in self.daily_invalid_words:
                         continue
-                    self.request_count += 1 
+                    self.request_count += 1
                     score = self.__get_score(neigh, day)
                     if score is None:
                         continue
@@ -279,10 +263,16 @@ class CemantixSolver:
                 break
 
         self.logger.info("Solving ended")
-        
+
         exec_time = time.time() - start_time
         self.__log_and_notify(best_word, exec_time)
         self.__filter_dictionnary(model)
-        
+
+        # Merge invalid word sets and persist
+        newly_added = self.daily_invalid_words - self.invalid_words
+        self.invalid_words.update(self.daily_invalid_words)
+        self.__save_invalid_words()
+        self.logger.info("Persisted %d new invalid words to global dictionary", len(newly_added))
+
         return best_word, best_score
 
