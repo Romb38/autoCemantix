@@ -167,7 +167,9 @@ class CemantixSolver:
         self.logger.info("Résultat final → %s", msg)
         token = os.getenv("NTFY_TOKEN")
         subject = os.getenv("NTFY_SUBJECT")
-        os.system(f'ntfy publish --token {token} https://ntfy.standouda.fr/{subject} "{msg}"')
+        ntfyUrl = os.getenv("NTFY_URL")
+        if token and subject:
+            os.system(f'ntfy publish --token {token} {NTFY_URL}/{subject} "{msg}"')
         
     def __filter_dictionnary(self,model):
         """
