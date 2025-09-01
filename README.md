@@ -1,12 +1,13 @@
-# Cemantix solver
+<h1 align="center">Cemantix Auto-Solver</h1>
+<p align="center">
+  <img src="https://img.shields.io/github/last-commit/Romb38/autoCemantix?style=flat-square" />
+</p>
 
-This project aims to solve automatically [Cemantix puzzle](https://cemantix.certitudes.org/).
+
+This project aims to solve automatically [Cemantix puzzle](https://cemantix.certitudes.org/). It also let the user filter his model to adapt his own dictionary
 
 ## Installation
 
-Firstly, go to [Jean-Philippe Fauconnier's page](https://fauconnier.github.io/#data) and download `bin (120Mb) - cbow` in `frWac2Vec`, name it `frWac.bin` and place it in `src/ressources/`.
-
-Then,
 ```bash
 # On project root
 
@@ -16,11 +17,11 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Execution
+## Execution of the solver
 
 ```bash
 source .venv/bin/activate
-python3 main.py
+python3 main.py solve
 ```
 
 ## Configuration
