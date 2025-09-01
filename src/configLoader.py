@@ -27,6 +27,7 @@ def load_config(filename="src/ressources/config.ini"):
         - content_type: HTTP request content type (str).
         - max_retries: Maximum number of retries for requests (int).
         - log_level: Logging level (str).
+        - glossary_path : Glossary needed to filter words from model (str)
         - log_file: Path to the log file (str).
     """
 
@@ -49,7 +50,8 @@ def load_config(filename="src/ressources/config.ini"):
         "content_type": cfg.get("content_type", "application/x-www-form-urlencoded"),
         "max_retries": cfg.getint("max_retries", 3),
         "log_level": cfg.get("log_level", "INFO").upper(),
-        "log_file": cfg.get("log_file", "").strip()
+        "log_file": cfg.get("log_file", "").strip(),
+        "glossary": cfg.get("glossary_path", None)
     }
 
     return config
