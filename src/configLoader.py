@@ -1,7 +1,35 @@
+##
+# @file configLoader.py
+# @brief Module to load configuration and set up logging.
+
 import configparser
 import logging
 
 def load_config(filename="src/ressources/config.ini"):
+    """
+    @brief Loads configuration values from a .ini file.
+
+    This function reads the "GENERAL" section of the configuration file
+    and converts the values to appropriate Python types.
+
+    @param filename Path to the configuration file. Defaults to "src/ressources/config.ini".
+
+    @return A dictionary containing the configuration values, including:
+        - start_words: List of seed words (list of str).
+        - beam_size: Beam width for search (int).
+        - topn: Number of similar words to retrieve (int).
+        - api_delay: Delay between API requests in seconds (float).
+        - model_path: Path to the Word2Vec model (str).
+        - invalid_dict_path: Path to the invalid words pickle file (str).
+        - schema: URL schema (http/https) (str).
+        - url: Domain of the Cemantix server (str).
+        - user_agent: User-Agent string for HTTP requests (str).
+        - content_type: HTTP request content type (str).
+        - max_retries: Maximum number of retries for requests (int).
+        - log_level: Logging level (str).
+        - log_file: Path to the log file (str).
+    """
+
     parser = configparser.ConfigParser()
     parser.read(filename)
 
@@ -28,7 +56,16 @@ def load_config(filename="src/ressources/config.ini"):
 
 
 def setup_logging(log_level: str, log_file: str):
-    """Configure le logger global selon la config"""
+    """
+    @brief Sets up global logging based on configuration.
+
+    Initializes the logging system either to a file (if provided)
+    or to the console. Sets the logging format and level accordingly.
+
+    @param log_level The logging level (e.g., "INFO", "DEBUG", "ERROR").
+    @param log_file Path to the log file. If empty, logs are printed to stdout.
+    """
+
     numeric_level = getattr(logging, log_level.upper(), logging.INFO)
 
     handlers = []
