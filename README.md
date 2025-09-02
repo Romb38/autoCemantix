@@ -4,6 +4,9 @@
   <a href="https://github.com/Romb38/autoCemantix/blob/master/TODO.md">
     <img src="https://img.shields.io/badge/Roadmap-View-blue?style=flat-square" alt="Roadmap" />
   </a>
+  <a href="https://github.com/Romb38/autoCemantix/actions/workflows/build-docs.yml">
+    <img src="https://github.com/Romb38/autoCemantix/actions/workflows/build-docs.yml/badge.svg" alt="Build and Deploy Docs" />
+  </a>
 </p>
 
 This project aims to automatically solve the [Cemantix puzzle](https://cemantix.certitudes.org/) as quickly and efficiently as possible. It also let the user filter his model to fit it own dictionary.
