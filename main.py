@@ -5,7 +5,7 @@ from src.initialFiltering import filter_model_from_config
 
 def main():
     parser = argparse.ArgumentParser(description="Cemantix solver and model initializer")
-    parser.add_argument("command", choices=["solve", "init", "stats"], help="Command to run: solve, init, stats")
+    parser.add_argument("command", choices=["solve", "init"], help="Command to run: solve or init")
     args = parser.parse_args()
 
     cfg = load_config()
@@ -19,8 +19,6 @@ def main():
         result = solver.solve()
         if result:
             print(result[0])
-#    elif args.command == "stats":
-#        continue
 
 if __name__ == "__main__":
     main()
