@@ -1,0 +1,18 @@
+stages:
+  - docs
+
+doxygen:
+  stage: docs
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache doxygen graphviz sed
+  script:
+    - sed -i "s/@PROJECT_NAME@/${CI_PROJECT_NAME}/" Doxyfile
+    - doxygen Doxyfile
+    - mv docs/html public
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+
