@@ -1,4 +1,6 @@
-<h2 align="center">Cemantix Auto-Solver</h2>
+# Cemantix Auto-Solver <!-- -->
+
+<h1 align="center">Cemantix Auto-Solver</h1>
 <p align="center">
   <img src="https://img.shields.io/github/last-commit/Romb38/autoCemantix?style=flat-square" />
   <a href="https://github.com/Romb38/autoCemantix/blob/master/TODO.md">
