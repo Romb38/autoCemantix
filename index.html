@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cemantix Auto-Solver &mdash; autoCemantix 0.1.0 documentation</title>
+  <title>🛠️ Installation &mdash; autoCemantix 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -60,7 +60,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Cemantix Auto-Solver <!-- --></li>
+      <li class="breadcrumb-item active">🛠️ Installation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -70,9 +70,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="cemantix-auto-solver">
-<h1>Cemantix Auto-Solver <!-- --><a class="headerlink" href="#cemantix-auto-solver" title="Link to this heading"></a></h1>
-<h1 align="center">Cemantix Auto-Solver</h1>
+  <h1 align="center">Cemantix Auto-Solver</h1>
 <p align="center">
   <img src="https://img.shields.io/github/last-commit/Romb38/autoCemantix?style=flat-square" />
   <a href="https://github.com/Romb38/autoCemantix/blob/master/TODO.md">
@@ -81,7 +79,7 @@
 </p>
 <p>This project aims to automatically solve the <a class="reference external" href="https://cemantix.certitudes.org/">Cemantix puzzle</a> as quickly and efficiently as possible. It also let the user filter his model to fit it own dictionary.</p>
 <section id="installation">
-<h2>🛠️ Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<h1>🛠️ Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># On project root</span>
 
 python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
@@ -92,7 +90,7 @@ pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </s
 </div>
 </section>
 <section id="solver-execution">
-<h2>🚀 Solver execution<a class="headerlink" href="#solver-execution" title="Link to this heading"></a></h2>
+<h1>🚀 Solver execution<a class="headerlink" href="#solver-execution" title="Link to this heading"></a></h1>
 <p>Without configuration, the solver use default dictionary, filtered by <code class="docutils literal notranslate"><span class="pre">initialFiltering.py</span></code></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
 python3<span class="w"> </span>main.py<span class="w"> </span>solve
@@ -100,7 +98,7 @@ python3<span class="w"> </span>main.py<span class="w"> </span>solve
 </div>
 </section>
 <section id="dictionary-filtering">
-<h2>🧹 Dictionary filtering<a class="headerlink" href="#dictionary-filtering" title="Link to this heading"></a></h2>
+<h1>🧹 Dictionary filtering<a class="headerlink" href="#dictionary-filtering" title="Link to this heading"></a></h1>
 <p>To start filtering a new Word2Vec model, follow these steps :</p>
 <ul class="simple">
 <li><p>Change the <code class="docutils literal notranslate"><span class="pre">model_path</span></code> properties in the <a class="reference internal" href="#-configuration"><span class="xref myst">configuration file</span></a> to point to your new model</p></li>
@@ -123,7 +121,7 @@ python3<span class="w"> </span>main.py<span class="w"> </span>init<span class="w
 <p>To applies these filter, the script is using this <a class="reference external" href="http://www.lexique.org/">glossary</a>.</p>
 </section>
 <section id="statistics">
-<h2>📊 Statistics<a class="headerlink" href="#statistics" title="Link to this heading"></a></h2>
+<h1>📊 Statistics<a class="headerlink" href="#statistics" title="Link to this heading"></a></h1>
 <p>Everyday, the first solving is saved in a file <code class="docutils literal notranslate"><span class="pre">src/resources/stats.csv</span></code>. It is only saved if the word is found. Currently, we save the following :</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">timestamp</span><span class="p">,</span> <span class="o">-&gt;</span> <span class="n">When</span> <span class="n">statistics</span> <span class="n">ar</span> <span class="n">saved</span>
 <span class="n">puzzle_number</span><span class="p">,</span> <span class="o">-&gt;</span> <span class="n">Puzzle</span> <span class="n">number</span> <span class="p">(</span><span class="n">given</span> <span class="n">by</span> <span class="n">Cemantix</span><span class="p">)</span>
@@ -137,12 +135,12 @@ python3<span class="w"> </span>main.py<span class="w"> </span>init<span class="w
 <p>We save only the first solving because we remove invalid_words from the model. This fact let statistics becomes false after 1 solving.</p>
 </section>
 <section id="configuration">
-<h2>🔧 Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<h1>🔧 Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h1>
 <p>Configuration file location : <code class="docutils literal notranslate"><span class="pre">src/resources/config.ini</span></code></p>
 <p>You can configure a lot this script, but it is advised to use the default configuration.</p>
 </section>
 <section id="ntfy-configuration">
-<h2>🔔 Ntfy Configuration<a class="headerlink" href="#ntfy-configuration" title="Link to this heading"></a></h2>
+<h1>🔔 Ntfy Configuration<a class="headerlink" href="#ntfy-configuration" title="Link to this heading"></a></h1>
 <p>In this project, i used <a class="reference external" href="https://ntfy.sh/">ntfy</a> to send me custom notification with some statistics. Here is the line that I’m using to send the notification :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ntfy<span class="w"> </span>publish<span class="w"> </span>--token<span class="w"> </span><span class="o">{</span>token<span class="o">}</span><span class="w"> </span><span class="o">{</span>ntfy_url<span class="o">}</span>/<span class="o">{</span>subject<span class="o">}</span><span class="w"> </span><span class="s2">&quot;{msg}&quot;</span>
 </pre></div>
@@ -155,7 +153,7 @@ python3<span class="w"> </span>main.py<span class="w"> </span>init<span class="w
 </div>
 </section>
 <section id="resources">
-<h2>📚 Resources<a class="headerlink" href="#resources" title="Link to this heading"></a></h2>
+<h1>📚 Resources<a class="headerlink" href="#resources" title="Link to this heading"></a></h1>
 <p>This project use the following resources :</p>
 <ul class="simple">
 <li><p>French glossary : http://www.lexique.org/</p></li>
@@ -165,7 +163,6 @@ python3<span class="w"> </span>main.py<span class="w"> </span>init<span class="w
 <li><p>Cemantix dictionary (from Jean-Philippe Fauconnier): https://fauconnier.github.io/#data</p></li>
 </ul>
 <p>I’ve used <a class="reference external" href="https://embeddings.net/embeddings/frWac_non_lem_no_postag_no_phrase_200_cbow_cut100.bin">this model</a> (bin (120Mb) cbow) with my filtering script to get the current <code class="docutils literal notranslate"><span class="pre">src/resources/frWac.bin</span></code> file. This file is also filtered everyday by removing all invalid words found when the script is running.</p>
-</section>
 </section>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
