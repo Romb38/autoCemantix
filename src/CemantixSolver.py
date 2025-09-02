@@ -18,6 +18,8 @@ from src.configLoader import setup_logging
 import os
 import time
 from dotenv import load_dotenv
+import csv
+from datetime import datetime
 
 class CemantixSolver:
     """
@@ -63,6 +65,61 @@ class CemantixSolver:
             "User-Agent": self.user_agent
         })
         self.similar_cache = {}
+        self.stats_file = config["stats_file"]
+        if self.stats_file is None:
+            self.logger.warn("No statistics file given, statistics will not be saved")
+
+
+    def __record_stats(self, puzzle_number, word, exec_time):
+        """
+        @brief Record solving statistics into a CSV file.
+
+        @param puzzle_number The puzzle number solved.
+        @param word The word that solved the puzzle.
+        @param exec_time Total time taken to solve the puzzle.
+        """
+        if not self.stats_file:
+            return
+
+        stats_row = {
+            "timestamp": datetime.now().isoformat(),
+            "puzzle_number": puzzle_number,
+            "word": word,
+            "solving_time": round(exec_time, 2),
+            "requests_count": self.request_count,
+            "api_delay": self.api_delay,
+            "invalid_word_removed_count": len(self.daily_invalid_words)
+        }
+
+        file_exists = os.path.isfile(self.stats_file)
+        already_logged = False
+
+        if file_exists:
+            try:
+                with open(self.stats_file, newline='', encoding='utf-8') as csvfile:
+                    reader = csv.DictReader(csvfile)
+                    already_logged = any(row.get('puzzle_number') == str(puzzle_number) for row in reader)
+            except Exception as e:
+                self.logger.warning("Failed to read stats file: %s", e)
+
+        if already_logged:
+            self.logger.info("Puzzle #%d already logged in stats file → skipping", puzzle_number)
+            return
+
+        try:
+            with open(self.stats_file, 'a', newline='', encoding='utf-8') as csvfile:
+                fieldnames = list(stats_row.keys())
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+                if not file_exists:
+                    self.logger.info("Stats file doesn't exist — creating it with headers.")
+                    writer.writeheader()
+
+                writer.writerow(stats_row)
+
+            self.logger.info("Statistics saved for puzzle #%d: %s", puzzle_number, stats_row)
+        except Exception as e:
+            self.logger.error("Failed to write statistics: %s", e)
 
     def __load_invalid_words(self):
         """
@@ -273,6 +330,6 @@ class CemantixSolver:
         self.invalid_words.update(self.daily_invalid_words)
         self.__save_invalid_words()
         self.logger.info("Persisted %d new invalid words to global dictionary", len(newly_added))
-
+        self.__record_stats(day, best_word, exec_time)
         return best_word, best_score
 

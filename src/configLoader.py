@@ -4,39 +4,26 @@
 
 import configparser
 import logging
+import os
+import sys
 
-def load_config(filename="src/ressources/config.ini"):
+def load_config(filename="src/resources/config.ini"):
     """
     @brief Loads configuration values from a .ini file.
-
-    This function reads the "GENERAL" section of the configuration file
-    and converts the values to appropriate Python types.
-
-    @param filename Path to the configuration file. Defaults to "src/ressources/config.ini".
-
-    @return A dictionary containing the configuration values, including:
-        - start_words: List of seed words (list of str).
-        - beam_size: Beam width for search (int).
-        - topn: Number of similar words to retrieve (int).
-        - api_delay: Delay between API requests in seconds (float).
-        - model_path: Path to the Word2Vec model (str).
-        - invalid_dict_path: Path to the invalid words pickle file (str).
-        - schema: URL schema (http/https) (str).
-        - url: Domain of the Cemantix server (str).
-        - user_agent: User-Agent string for HTTP requests (str).
-        - content_type: HTTP request content type (str).
-        - max_retries: Maximum number of retries for requests (int).
-        - log_level: Logging level (str).
-        - glossary_path : Glossary needed to filter words from model (str)
-        - log_file: Path to the log file (str).
     """
+
+    if not os.path.exists(filename):
+        raise FileNotFoundError(f"Configuration file not found: {filename}")
 
     parser = configparser.ConfigParser()
     parser.read(filename)
 
+    if "GENERAL" not in parser:
+        raise KeyError(f"The section [GENERAL] is missing in {filename}. "
+                       f"Found sections: {parser.sections()}")
+
     cfg = parser["GENERAL"]
 
-    # Conversion avec types corrects
     config = {
         "start_words": [w.strip() for w in cfg.get("start_words", "").split(",")],
         "beam_size": cfg.getint("beam_size", 5),
@@ -51,7 +38,8 @@ def load_config(filename="src/ressources/config.ini"):
         "max_retries": cfg.getint("max_retries", 3),
         "log_level": cfg.get("log_level", "INFO").upper(),
         "log_file": cfg.get("log_file", "").strip(),
-        "glossary": cfg.get("glossary_path", None)
+        "glossary": cfg.get("glossary_path", None),
+        "stats_file": cfg.get("statistics_path", None)
     }
 
     return config
@@ -60,12 +48,6 @@ def load_config(filename="src/ressources/config.ini"):
 def setup_logging(log_level: str, log_file: str):
     """
     @brief Sets up global logging based on configuration.
-
-    Initializes the logging system either to a file (if provided)
-    or to the console. Sets the logging format and level accordingly.
-
-    @param log_level The logging level (e.g., "INFO", "DEBUG", "ERROR").
-    @param log_file Path to the log file. If empty, logs are printed to stdout.
     """
 
     numeric_level = getattr(logging, log_level.upper(), logging.INFO)
@@ -73,8 +55,8 @@ def setup_logging(log_level: str, log_file: str):
     handlers = []
     if log_file:
         handlers.append(logging.FileHandler(log_file, mode="a", encoding="utf-8"))
-    else :
-        handlers.append(logging.StreamHandler())
+    else:
+        handlers.append(logging.StreamHandler(sys.stdout))
 
     logging.basicConfig(
         level=numeric_level,
@@ -82,3 +64,4 @@ def setup_logging(log_level: str, log_file: str):
         datefmt="%H:%M:%S",
         handlers=handlers
     )
+
