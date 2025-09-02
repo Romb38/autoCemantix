@@ -71,6 +71,21 @@ Configuration file location : `src/resources/config.ini`
 
 You can configure a lot this script, but it is advised to use the default configuration.
 
+## 🔔 Ntfy Configuration
+
+In this project, i used [ntfy](https://ntfy.sh/) to send me custom notification with some statistics. Here is the line that I'm using to send the notification :
+
+```bash
+ntfy publish --token {token} {ntfy_url}/{subject} "{msg}"
+```
+
+Values in brackets are configured by using a `.env` file located at the root of the project. You can use the `.env.example`
+
+```bash
+NTFY_TOKEN=XXXXX # Token is required if you're using a instance with password
+NTFY_SUBJECT=XXXXX # Subject to send notification to
+NTFY_URL=https://ntfy.exemple.fr # Adress of the ntfy server
+```
 
 ## 📚 Resources
 This project use the following resources :

@@ -39,7 +39,7 @@ class CemantixSolver:
         setup_logging(config["log_level"], config["log_file"])
         self.logger = logging.getLogger(__name__)
 
-        if not(os.getenv("NTFY_TOKEN") and os.getenv("NTFY_URL") and os.getenv("NTFY_SUBJECT")):
+        if not(os.getenv("NTFY_URL") and os.getenv("NTFY_SUBJECT")):
             self.logger.warn("No NTFY config found")
 
         self.invalid_words_file = config["invalid_dict_path"]
@@ -203,7 +203,7 @@ class CemantixSolver:
         token = os.getenv("NTFY_TOKEN")
         subject = os.getenv("NTFY_SUBJECT")
         ntfy_url = os.getenv("NTFY_URL")
-        if token and subject and ntfy_url:
+        if  subject and ntfy_url:
             os.system(f'ntfy publish --token {token} {ntfy_url}/{subject} "{msg}"')
 
     def __filter_dictionnary(self, model):

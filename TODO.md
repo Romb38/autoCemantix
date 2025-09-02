@@ -11,6 +11,10 @@ My script run at home on a server. I want to update the following everyday :
 
 I know that is a configuration of my server, but I want to include this on the repository to let users know how to do it.
 
+## 🔔 Ntfy commands
+
+I know that you can push notification on ntfy server by using only `curl`. I need to adapt my script to remove ntfy script dependency.
+
 ## ❓ Using randomness on solver
 
 After discussion of the project with some friends, they suggested me to use randomness at the beginning of the script to get a bigger starting point and converge more efficiently. It will be tested when some statistics will be saved.
