@@ -16,6 +16,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "myst_parser",  # pour supporter le README.md
 ]
+myst_suppress_warnings = ["myst.header"]
 
 # Fichiers source supportés (rst + md)
 source_suffix = {
