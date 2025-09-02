@@ -1,8 +1,10 @@
 <h1 align="center">Cemantix Auto-Solver</h1>
 <p align="center">
   <img src="https://img.shields.io/github/last-commit/Romb38/autoCemantix?style=flat-square" />
+  <a href="https://github.com/Romb38/autoCemantix/blob/main/TODO.md">
+    <img src="https://img.shields.io/badge/Roadmap-View-blue?style=flat-square" alt="Roadmap" />
+  </a>
 </p>
-
 
 This project aims to automatically solve the [Cemantix puzzle](https://cemantix.certitudes.org/) as quickly and efficiently as possible. It also let the user filter his model to fit it own dictionary.
 
@@ -54,7 +56,7 @@ Configuration file location : `src/ressources/config.ini`
 You can configure a lot this script, but it is advised to use the default configuration.
 
 
-## Resources
+## 📚 Resources
 This project use the following resources :
 
 - French glossary : http://www.lexique.org/
