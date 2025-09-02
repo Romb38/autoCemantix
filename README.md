@@ -5,7 +5,7 @@
     <img src="https://img.shields.io/badge/Roadmap-View-blue?style=flat-square" alt="Roadmap" />
   </a>
   <a href="https://github.com/Romb38/autoCemantix/actions/workflows/build-docs.yml">
-https://img.shields.io/github/actions/workflow/status/Romb38/autoCemantix/build-docs.yml?style=flat-square  
+        <img src="https://img.shields.io/github/actions/workflow/status/Romb38/autoCemantix/build-docs.yml?style=flat-square" alt="Documentation build" />
   </a>
 </p>
 
