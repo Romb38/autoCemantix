@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="🛠️ Installation" href="index.html" /> 
+    <link rel="prev" title="Cemantix Auto-Solver" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,8 +44,21 @@
               <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver"><code class="docutils literal notranslate"><span class="pre">CemantixSolver</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__filter_dictionnary"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__filter_dictionnary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__get_puzzle_number"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__get_puzzle_number()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__get_score"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__get_score()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__load_invalid_words"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__load_invalid_words()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__log_and_notify"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__log_and_notify()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__mark_invalid"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__mark_invalid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__record_stats"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__record_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__save_invalid_words"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__save_invalid_words()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.solve"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.solve()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#src.configLoader.load_config"><code class="docutils literal notranslate"><span class="pre">load_config()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#src.configLoader.setup_logging"><code class="docutils literal notranslate"><span class="pre">setup_logging()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#src.initialFiltering.filter_model_from_config"><code class="docutils literal notranslate"><span class="pre">filter_model_from_config()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -74,9 +87,141 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-src.configLoader">
-<span id="api-reference"></span><h1>API Reference<a class="headerlink" href="#module-src.configLoader" title="Link to this heading"></a></h1>
-<dl class="py function">
+  <section id="module-src.CemantixSolver">
+<span id="api-reference"></span><h1>API Reference<a class="headerlink" href="#module-src.CemantixSolver" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CemantixSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CemantixSolver.html#CemantixSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CemantixSolver.CemantixSolver" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Automatic solver for the Cemantix word game.</p>
+<p>This solver uses a Word2Vec model and a beam search strategy
+to guess the hidden word by querying the Cemantix API for similarity scores.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__filter_dictionnary">
+<span class="sig-name descname"><span class="pre">__filter_dictionnary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__filter_dictionnary" title="Link to this definition"></a></dt>
+<dd><p>Filter the Word2Vec model by removing both global and session invalid words.</p>
+<p>This also saves the merged invalid word list back to disk to allow future re-filtering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<em>KeyedVectors</em>) – The original Word2Vec model to filter.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__get_puzzle_number">
+<span class="sig-name descname"><span class="pre">__get_puzzle_number</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__get_puzzle_number" title="Link to this definition"></a></dt>
+<dd><p>Fetch the current day’s puzzle number from the Cemantix website.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The puzzle number as an integer if found, otherwise None.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__get_score">
+<span class="sig-name descname"><span class="pre">__get_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">word</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__get_score" title="Link to this definition"></a></dt>
+<dd><p>Send a word to the API and retrieve its similarity score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>word</strong> (<em>str</em>) – The word to test.</p></li>
+<li><p><strong>day</strong> (<em>int</em>) – The puzzle number for which to retrieve the score.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The similarity score (float between 0.0 and 1.0), or None if the request failed or word is invalid.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__load_invalid_words">
+<span class="sig-name descname"><span class="pre">__load_invalid_words</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__load_invalid_words" title="Link to this definition"></a></dt>
+<dd><p>Load the set of invalid words from the pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A set of invalid words if the file exists, otherwise an empty set.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__log_and_notify">
+<span class="sig-name descname"><span class="pre">__log_and_notify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">word</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__log_and_notify" title="Link to this definition"></a></dt>
+<dd><p>Send a notification when the solution is found.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>word</strong> (<em>str</em>) – The found word (the solution).</p></li>
+<li><p><strong>exec_time</strong> (<em>float</em>) – Execution time in seconds.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__mark_invalid">
+<span class="sig-name descname"><span class="pre">__mark_invalid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">word</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__mark_invalid" title="Link to this definition"></a></dt>
+<dd><p>Mark a word as invalid for the current solving session only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>word</strong> (<em>str</em>) – The word to mark as invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__record_stats">
+<span class="sig-name descname"><span class="pre">__record_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">puzzle_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">word</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__record_stats" title="Link to this definition"></a></dt>
+<dd><p>Record solving statistics into a CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>puzzle_number</strong> (<em>int</em>) – The puzzle number solved.</p></li>
+<li><p><strong>word</strong> (<em>str</em>) – The word that solved the puzzle.</p></li>
+<li><p><strong>exec_time</strong> (<em>float</em>) – Total time taken to solve the puzzle.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__save_invalid_words">
+<span class="sig-name descname"><span class="pre">__save_invalid_words</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__save_invalid_words" title="Link to this definition"></a></dt>
+<dd><p>Save the current global invalid word list to the pickle file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CemantixSolver.html#CemantixSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.solve" title="Link to this definition"></a></dt>
+<dd><p>Start solving the Cemantix puzzle using beam search and a Word2Vec model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>day</strong> (<em>int</em>) – (Optional) Puzzle number to solve. If None, the current day’s puzzle will be used.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple (best_word, best_score) or None if no solution was found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function" id="module-src.configLoader">
 <dt class="sig sig-object py" id="src.configLoader.load_config">
 <span class="sig-name descname"><span class="pre">load_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'src/resources/config.ini'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/configLoader.html#load_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.configLoader.load_config" title="Link to this definition"></a></dt>
 <dd><p>Load configuration values from a .ini file.</p>
@@ -113,13 +258,33 @@
 </dl>
 </dd></dl>
 
+<dl class="py function" id="module-src.initialFiltering">
+<dt class="sig sig-object py" id="src.initialFiltering.filter_model_from_config">
+<span class="sig-name descname"><span class="pre">filter_model_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/initialFiltering.html#filter_model_from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.initialFiltering.filter_model_from_config" title="Link to this definition"></a></dt>
+<dd><p>Filter the Word2Vec model by removing invalid, plural, conjugated,
+or otherwise unwanted words based on the glossary provided in the config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cfg</strong> (<em>dict</em>) – Configuration dictionary containing the following keys:
+- model_path (str): Path to the Word2Vec model file.
+- invalid_dict_path (str): Path to the pickle file with invalid words.
+- glossary (str): Path to the TSV glossary file.
+- log_level (str): Logging level (e.g., ‘INFO’).
+- log_file (str or None): Logging output file (optional).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="🛠️ Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Cemantix Auto-Solver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

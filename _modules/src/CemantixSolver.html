@@ -1,0 +1,444 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.CemantixSolver &mdash; autoCemantix 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            autoCemantix
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">autoCemantix</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.CemantixSolver</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.CemantixSolver</h1><div class="highlight"><pre>
+<span></span><span class="c1">##</span>
+<span class="c1"># @file CemantixSolver.py</span>
+<span class="c1"># @brief Contains the CemantixSolver class to solve the Cemantix word puzzle game.</span>
+<span class="c1">#</span>
+<span class="c1"># This module implements an automatic solver using a Word2Vec model and a beam search</span>
+<span class="c1"># strategy to guess the hidden word by interacting with the Cemantix API.</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">heapq</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">requests.structures</span><span class="w"> </span><span class="kn">import</span> <span class="n">CaseInsensitiveDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gensim.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyedVectors</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.configLoader</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<div class="viewcode-block" id="CemantixSolver">
+<a class="viewcode-back" href="../../modules.html#src.CemantixSolver.CemantixSolver">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CemantixSolver</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Automatic solver for the Cemantix word game.</span>
+
+<span class="sd">    This solver uses a Word2Vec model and a beam search strategy</span>
+<span class="sd">    to guess the hidden word by querying the Cemantix API for similarity scores.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the solver with the provided configuration.</span>
+
+<span class="sd">        :param dict config: Dictionary containing configuration keys (see configLoader).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">load_dotenv</span><span class="p">()</span>
+        <span class="n">setup_logging</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;log_level&quot;</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;log_file&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NTFY_URL&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NTFY_SUBJECT&quot;</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No NTFY config found&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words_file</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;invalid_dict_path&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__load_invalid_words</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># Temporary invalid words for this solving session</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_words</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;start_words&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;beam_size&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topn</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;topn&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api_delay</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;api_delay&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_path&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_agent</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;user_agent&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;content_type&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;max_retries&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="n">CaseInsensitiveDict</span><span class="p">({</span>
+            <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span>
+            <span class="s2">&quot;Host&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
+            <span class="s2">&quot;Origin&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;referrer&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_agent</span>
+        <span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">similar_cache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats_file</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;stats_file&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No statistics file given, statistics will not be saved&quot;</span><span class="p">)</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__record_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">puzzle_number</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Record solving statistics into a CSV file.</span>
+
+<span class="sd">        :param int puzzle_number: The puzzle number solved.</span>
+<span class="sd">        :param str word: The word that solved the puzzle.</span>
+<span class="sd">        :param float exec_time: Total time taken to solve the puzzle.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats_file</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">stats_row</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="s2">&quot;puzzle_number&quot;</span><span class="p">:</span> <span class="n">puzzle_number</span><span class="p">,</span>
+            <span class="s2">&quot;word&quot;</span><span class="p">:</span> <span class="n">word</span><span class="p">,</span>
+            <span class="s2">&quot;solving_time&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">exec_time</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s2">&quot;requests_count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_count</span><span class="p">,</span>
+            <span class="s2">&quot;api_delay&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_delay</span><span class="p">,</span>
+            <span class="s2">&quot;invalid_word_removed_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="n">file_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stats_file</span><span class="p">)</span>
+        <span class="n">already_logged</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">file_exists</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stats_file</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+                    <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+                    <span class="n">already_logged</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;puzzle_number&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">puzzle_number</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to read stats file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">already_logged</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Puzzle #</span><span class="si">%d</span><span class="s2"> already logged in stats file → skipping&quot;</span><span class="p">,</span> <span class="n">puzzle_number</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stats_file</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+                <span class="n">fieldnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">stats_row</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">fieldnames</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">file_exists</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stats file doesn&#39;t exist — creating it with headers.&quot;</span><span class="p">)</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
+
+                <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">stats_row</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Statistics saved for puzzle #</span><span class="si">%d</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">puzzle_number</span><span class="p">,</span> <span class="n">stats_row</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to write statistics: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__load_invalid_words</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the set of invalid words from the pickle file.</span>
+
+<span class="sd">        :returns: A set of invalid words if the file exists, otherwise an empty set.</span>
+<span class="sd">        :rtype: set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invalid_words_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">EOFError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__save_invalid_words</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the current global invalid word list to the pickle file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invalid_words_file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__mark_invalid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Mark a word as invalid for the current solving session only.</span>
+
+<span class="sd">        :param str word: The word to mark as invalid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__get_puzzle_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch the current day&#39;s puzzle number from the Cemantix website.</span>
+
+<span class="sd">        :returns: The puzzle number as an integer if found, otherwise None.</span>
+<span class="sd">        :rtype: int or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Getting puzzle number&quot;</span><span class="p">)</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;data-puzzle-number=&quot;(\d+)&quot;&#39;</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="n">puzzle_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Puzzle number: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">puzzle_number</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">puzzle_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No puzzle number found&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__get_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">day</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a word to the API and retrieve its similarity score.</span>
+
+<span class="sd">        :param str word: The word to test.</span>
+<span class="sd">        :param int day: The puzzle number for which to retrieve the score.</span>
+
+<span class="sd">        :returns: The similarity score (float between 0.0 and 1.0), or None if the request failed or word is invalid.</span>
+<span class="sd">        :rtype: float or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/score?n=</span><span class="si">{</span><span class="n">day</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;word=</span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+                <span class="n">resp_json</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="s1">&#39;e&#39;</span> <span class="ow">in</span> <span class="n">resp_json</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Word &#39;</span><span class="si">%s</span><span class="s2">&#39; error: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">resp_json</span><span class="p">[</span><span class="s1">&#39;e&#39;</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__mark_invalid</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">return</span> <span class="n">resp_json</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Error fetching score for &#39;</span><span class="si">%s</span><span class="s2">&#39;: </span><span class="si">%s</span><span class="s2"> (retry </span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">attempt</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_delay</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__log_and_notify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a notification when the solution is found.</span>
+
+<span class="sd">        :param str word: The found word (the solution).</span>
+<span class="sd">        :param float exec_time: Execution time in seconds.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Mot trouvé: </span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">, Requêtes: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">request_count</span><span class="si">}</span><span class="s2">, Temps: </span><span class="si">{</span><span class="n">exec_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> sec&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Résultat final → </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NTFY_TOKEN&quot;</span><span class="p">)</span>
+        <span class="n">subject</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NTFY_SUBJECT&quot;</span><span class="p">)</span>
+        <span class="n">ntfy_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NTFY_URL&quot;</span><span class="p">)</span>
+        <span class="k">if</span>  <span class="n">subject</span> <span class="ow">and</span> <span class="n">ntfy_url</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ntfy publish --token </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">ntfy_url</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1"> &quot;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__filter_dictionnary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filter the Word2Vec model by removing both global and session invalid words.</span>
+
+<span class="sd">        This also saves the merged invalid word list back to disk to allow future re-filtering.</span>
+
+<span class="sd">        :param KeyedVectors model: The original Word2Vec model to filter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Filtering model using invalid words&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Combine all invalid words (persistent + session)</span>
+        <span class="n">all_invalid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span><span class="p">)</span>
+
+        <span class="c1"># Save the updated invalid word set to disk for future use</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invalid_words_file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">all_invalid</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saved </span><span class="si">%d</span><span class="s2"> invalid words to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_invalid</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words_file</span><span class="p">)</span>
+
+        <span class="c1"># Filter model</span>
+        <span class="n">valid_words</span> <span class="o">=</span> <span class="p">[</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">key_to_index</span> <span class="k">if</span> <span class="n">word</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span><span class="p">]</span>
+        <span class="n">valid_vectors</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">valid_words</span><span class="p">]</span>
+        <span class="n">filtered_model</span> <span class="o">=</span> <span class="n">KeyedVectors</span><span class="p">(</span><span class="n">vector_size</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">vector_size</span><span class="p">)</span>
+        <span class="n">filtered_model</span><span class="o">.</span><span class="n">add_vectors</span><span class="p">(</span><span class="n">valid_words</span><span class="p">,</span> <span class="n">valid_vectors</span><span class="p">)</span>
+
+        <span class="c1"># Save filtered model</span>
+        <span class="n">filtered_model</span><span class="o">.</span><span class="n">save_word2vec_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Filtered model saved to </span><span class="si">%s</span><span class="s2"> with </span><span class="si">%d</span><span class="s2"> words&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_words</span><span class="p">))</span>
+
+<div class="viewcode-block" id="CemantixSolver.solve">
+<a class="viewcode-back" href="../../modules.html#src.CemantixSolver.CemantixSolver.solve">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start solving the Cemantix puzzle using beam search and a Word2Vec model.</span>
+
+<span class="sd">        :param int day: (Optional) Puzzle number to solve. If None, the current day&#39;s puzzle will be used.</span>
+<span class="sd">        :returns: A tuple (best_word, best_score) or None if no solution was found.</span>
+<span class="sd">        :rtype: tuple or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Solver started&quot;</span><span class="p">)</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading model &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">KeyedVectors</span><span class="o">.</span><span class="n">load_word2vec_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unicode_errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Model loaded&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">day</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_puzzle_number</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">day</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">tested</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">beam</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Initial guesses</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_words</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span> <span class="ow">or</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">request_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_score</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">day</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">tested</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+                <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">beam</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="n">score</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Initial: </span><span class="si">%s</span><span class="s2"> → </span><span class="si">%.4f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">beam</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No valid starting words&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">best_score</span><span class="p">,</span> <span class="n">best_word</span> <span class="o">=</span> <span class="o">-</span><span class="n">beam</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">beam</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">while</span> <span class="n">best_score</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="n">new_candidates</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">beam</span><span class="p">))):</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">word</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="n">beam</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">word</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">model</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">similar_cache</span><span class="p">:</span>
+                    <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">similar_cache</span><span class="p">[</span><span class="n">word</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">neighbors</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">topn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">topn</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">similar_cache</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="n">neighbors</span>
+
+                <span class="k">for</span> <span class="n">neigh</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">tested</span> <span class="ow">or</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span> <span class="ow">or</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">request_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_score</span><span class="p">(</span><span class="n">neigh</span><span class="p">,</span> <span class="n">day</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">tested</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">neigh</span><span class="p">)</span>
+                    <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">new_candidates</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="n">score</span><span class="p">,</span> <span class="n">neigh</span><span class="p">))</span>
+
+                    <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="n">best_score</span><span class="p">:</span>
+                        <span class="n">best_score</span><span class="p">,</span> <span class="n">best_word</span> <span class="o">=</span> <span class="n">score</span><span class="p">,</span> <span class="n">neigh</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New best: </span><span class="si">%s</span><span class="s2"> → </span><span class="si">%.4f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">neigh</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">best_score</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Solution found: </span><span class="si">%s</span><span class="s2"> → </span><span class="si">%.4f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">best_word</span><span class="p">,</span> <span class="n">best_score</span><span class="p">)</span>
+                            <span class="k">break</span>
+
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_delay</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">best_score</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">new_candidates</span><span class="p">:</span>
+                <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">beam</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+
+            <span class="n">beam</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">nsmallest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">,</span> <span class="n">beam</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">new_candidates</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No new candidates found, stopping.&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Solving ended&quot;</span><span class="p">)</span>
+
+        <span class="n">exec_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__log_and_notify</span><span class="p">(</span><span class="n">best_word</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__filter_dictionnary</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="c1"># Merge invalid word sets and persist</span>
+        <span class="n">newly_added</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__save_invalid_words</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Persisted </span><span class="si">%d</span><span class="s2"> new invalid words to global dictionary&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">newly_added</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__record_stats</span><span class="p">(</span><span class="n">day</span><span class="p">,</span> <span class="n">best_word</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">best_word</span><span class="p">,</span> <span class="n">best_score</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
