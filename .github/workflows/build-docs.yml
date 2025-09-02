@@ -1,0 +1,43 @@
+name: Build and Deploy Docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install sphinx sphinx-rtd-theme myst-parser
+
+    - name: Inject project name into conf.py
+      run: |
+        REPO_NAME="${GITHUB_REPOSITORY##*/}"
+        echo "Using project name: $REPO_NAME"
+        sed -i "s|os.getenv(\"PROJECT_NAME\", .*|os.getenv(\"PROJECT_NAME\", \"$REPO_NAME\")|" docs/conf.py
+
+    - name: Build documentation
+      run: |
+        cd docs
+        sphinx-build -b html . _build/html
+
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/_build/html
+
