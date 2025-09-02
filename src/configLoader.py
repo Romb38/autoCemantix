@@ -9,7 +9,13 @@ import sys
 
 def load_config(filename="src/resources/config.ini"):
     """
-    @brief Loads configuration values from a .ini file.
+    Load configuration values from a .ini file.
+
+    :param str filename: Path to the configuration file.
+    :raises FileNotFoundError: If the configuration file does not exist.
+    :raises KeyError: If the [GENERAL] section is missing in the configuration file.
+    :returns: A dictionary containing the configuration values.
+    :rtype: dict
     """
 
     if not os.path.exists(filename):
@@ -47,9 +53,11 @@ def load_config(filename="src/resources/config.ini"):
 
 def setup_logging(log_level: str, log_file: str):
     """
-    @brief Sets up global logging based on configuration.
-    """
+    Set up global logging based on configuration.
 
+    :param str log_level: Logging level as a string (e.g., 'INFO', 'DEBUG').
+    :param str log_file: Path to the log file. If empty, logs are output to stdout.
+    """
     numeric_level = getattr(logging, log_level.upper(), logging.INFO)
 
     handlers = []
@@ -64,4 +72,3 @@ def setup_logging(log_level: str, log_file: str):
         datefmt="%H:%M:%S",
         handlers=handlers
     )
-

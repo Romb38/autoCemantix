@@ -23,7 +23,7 @@ from datetime import datetime
 
 class CemantixSolver:
     """
-    @brief Automatic solver for the Cemantix word game.
+    Automatic solver for the Cemantix word game.
 
     This solver uses a Word2Vec model and a beam search strategy
     to guess the hidden word by querying the Cemantix API for similarity scores.
@@ -31,9 +31,9 @@ class CemantixSolver:
 
     def __init__(self, config):
         """
-        @brief Initializes the solver with the provided configuration.
+        Initialize the solver with the provided configuration.
 
-        @param config Dictionary containing configuration keys (see configLoader).
+        :param dict config: Dictionary containing configuration keys (see configLoader).
         """
         load_dotenv()
         setup_logging(config["log_level"], config["log_file"])
@@ -72,11 +72,11 @@ class CemantixSolver:
 
     def __record_stats(self, puzzle_number, word, exec_time):
         """
-        @brief Record solving statistics into a CSV file.
+        Record solving statistics into a CSV file.
 
-        @param puzzle_number The puzzle number solved.
-        @param word The word that solved the puzzle.
-        @param exec_time Total time taken to solve the puzzle.
+        :param int puzzle_number: The puzzle number solved.
+        :param str word: The word that solved the puzzle.
+        :param float exec_time: Total time taken to solve the puzzle.
         """
         if not self.stats_file:
             return
@@ -123,9 +123,10 @@ class CemantixSolver:
 
     def __load_invalid_words(self):
         """
-        @brief Loads the set of invalid words from the pickle file.
+        Load the set of invalid words from the pickle file.
 
-        @return A set of invalid words if the file exists, otherwise an empty set.
+        :returns: A set of invalid words if the file exists, otherwise an empty set.
+        :rtype: set
         """
         try:
             with open(self.invalid_words_file, "rb") as f:
@@ -135,24 +136,25 @@ class CemantixSolver:
 
     def __save_invalid_words(self):
         """
-        @brief Saves the current global invalid word list to the pickle file.
+        Save the current global invalid word list to the pickle file.
         """
         with open(self.invalid_words_file, "wb") as f:
             pickle.dump(self.invalid_words, f)
 
     def __mark_invalid(self, word):
         """
-        @brief Marks a word as invalid for the current solving session only.
+        Mark a word as invalid for the current solving session only.
 
-        @param word The word to mark as invalid.
+        :param str word: The word to mark as invalid.
         """
         self.daily_invalid_words.add(word)
 
     def __get_puzzle_number(self):
         """
-        @brief Fetches the current day's puzzle number from the Cemantix website.
+        Fetch the current day's puzzle number from the Cemantix website.
 
-        @return The puzzle number as an integer if found, otherwise None.
+        :returns: The puzzle number as an integer if found, otherwise None.
+        :rtype: int or None
         """
         self.logger.info("Getting puzzle number")
         resp = requests.get(f"{self.schema}://{self.url}", headers=self.headers, timeout=30)
@@ -167,12 +169,13 @@ class CemantixSolver:
 
     def __get_score(self, word, day):
         """
-        @brief Sends a word to the API and retrieves its similarity score.
+        Send a word to the API and retrieve its similarity score.
 
-        @param word The word to test.
-        @param day The puzzle number for which to retrieve the score.
+        :param str word: The word to test.
+        :param int day: The puzzle number for which to retrieve the score.
 
-        @return The similarity score (float between 0.0 and 1.0), or None if the request failed or word is invalid.
+        :returns: The similarity score (float between 0.0 and 1.0), or None if the request failed or word is invalid.
+        :rtype: float or None
         """
         for attempt in range(self.max_retries):
             try:
@@ -193,10 +196,10 @@ class CemantixSolver:
 
     def __log_and_notify(self, word, exec_time):
         """
-        @brief Sends a notification when the solution is found.
+        Send a notification when the solution is found.
 
-        @param word The found word (the solution).
-        @param exec_time Execution time in seconds.
+        :param str word: The found word (the solution).
+        :param float exec_time: Execution time in seconds.
         """
         msg = f"Mot trouvé: {word}, Requêtes: {self.request_count}, Temps: {exec_time:.2f} sec"
         self.logger.info("Résultat final → %s", msg)
@@ -208,11 +211,11 @@ class CemantixSolver:
 
     def __filter_dictionnary(self, model):
         """
-        @brief Filters the Word2Vec model by removing both global and session invalid words.
-    
+        Filter the Word2Vec model by removing both global and session invalid words.
+
         This also saves the merged invalid word list back to disk to allow future re-filtering.
-    
-        @param model The original Word2Vec model to filter.
+
+        :param KeyedVectors model: The original Word2Vec model to filter.
         """
         self.logger.info("Filtering model using invalid words")
 
@@ -236,11 +239,11 @@ class CemantixSolver:
 
     def solve(self, day=None):
         """
-        @brief Starts solving the Cemantix puzzle using beam search and a Word2Vec model.
+        Start solving the Cemantix puzzle using beam search and a Word2Vec model.
 
-        @param day (Optional) Puzzle number to solve. If None, the current day's puzzle will be used.
-
-        @return A tuple (best_word, best_score) or None if no solution was found.
+        :param int day: (Optional) Puzzle number to solve. If None, the current day's puzzle will be used.
+        :returns: A tuple (best_word, best_score) or None if no solution was found.
+        :rtype: tuple or None
         """
         self.logger.info("Solver started")
         start_time = time.time()
@@ -332,4 +335,3 @@ class CemantixSolver:
         self.logger.info("Persisted %d new invalid words to global dictionary", len(newly_added))
         self.__record_stats(day, best_word, exec_time)
         return best_word, best_score
-

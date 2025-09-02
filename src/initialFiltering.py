@@ -11,16 +11,16 @@ from src.configLoader import setup_logging
 
 def filter_model_from_config(cfg):
     """
-    Filters the Word2Vec model by removing invalid, plural, conjugated, 
+    Filter the Word2Vec model by removing invalid, plural, conjugated,
     or otherwise unwanted words based on the glossary provided in the config.
 
-    Args:
-        cfg (dict): Configuration dictionary containing keys:
-                    - 'model_path': path to the Word2Vec model file
-                    - 'invalid_dict_path': path to the pickle file with invalid words
-                    - 'glossary': path to the TSV glossary file
-                    - 'log_level': logging level (e.g. 'INFO')
-                    - 'log_file': logging output file (optional)
+    :param dict cfg: Configuration dictionary containing the following keys:
+        - model_path (str): Path to the Word2Vec model file.
+        - invalid_dict_path (str): Path to the pickle file with invalid words.
+        - glossary (str): Path to the TSV glossary file.
+        - log_level (str): Logging level (e.g., 'INFO').
+        - log_file (str or None): Logging output file (optional).
+    :returns: None
     """
 
     setup_logging(cfg.get("log_level", "INFO"), cfg.get("log_file", None))
@@ -31,7 +31,7 @@ def filter_model_from_config(cfg):
         logger.error("Glossary needs to be defined in configuration")
         return None
     df = pd.read_csv(cfg["glossary"], sep="\t")
-    
+
     def is_valid_word(word):
         if len(word) < 2:
             return False
@@ -97,4 +97,3 @@ def filter_model_from_config(cfg):
 
     filtered_model.save_word2vec_format(cfg["model_path"], binary=True)
     logger.info(f"Filtered model saved to {cfg['model_path']}")
-

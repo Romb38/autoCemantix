@@ -3,7 +3,7 @@ import sys
 from datetime import datetime
 
 # Add source code path
-sys.path.insert(0, os.path.abspath('../src'))
+sys.path.insert(0, os.path.abspath('..'))
 
 project = os.getenv("PROJECT_NAME", "DefaultProjectName")
 author = "Romb38"
