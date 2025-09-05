@@ -143,7 +143,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No statistics file given, statistics will not be saved&quot;</span><span class="p">)</span>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">__record_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">puzzle_number</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__record_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">puzzle_number</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Record solving statistics into a CSV file.</span>
 
@@ -158,6 +158,7 @@
             <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
             <span class="s2">&quot;puzzle_number&quot;</span><span class="p">:</span> <span class="n">puzzle_number</span><span class="p">,</span>
             <span class="s2">&quot;word&quot;</span><span class="p">:</span> <span class="n">word</span><span class="p">,</span>
+            <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">,</span>
             <span class="s2">&quot;solving_time&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">exec_time</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
             <span class="s2">&quot;requests_count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_count</span><span class="p">,</span>
             <span class="s2">&quot;api_delay&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_delay</span><span class="p">,</span>
@@ -267,14 +268,14 @@
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_delay</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">__log_and_notify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__log_and_notify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Send a notification when the solution is found.</span>
 
 <span class="sd">        :param str word: The found word (the solution).</span>
 <span class="sd">        :param float exec_time: Execution time in seconds.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Mot trouvé: </span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">, Requêtes: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">request_count</span><span class="si">}</span><span class="s2">, Temps: </span><span class="si">{</span><span class="n">exec_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> sec&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Mot trouvé: </span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2"> (score : </span><span class="si">{</span><span class="n">score</span><span class="si">}</span><span class="s2">), Requêtes: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">request_count</span><span class="si">}</span><span class="s2">, Temps: </span><span class="si">{</span><span class="n">exec_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> sec&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Résultat final → </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
         <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NTFY_TOKEN&quot;</span><span class="p">)</span>
         <span class="n">subject</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NTFY_SUBJECT&quot;</span><span class="p">)</span>
@@ -400,7 +401,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Solving ended&quot;</span><span class="p">)</span>
 
         <span class="n">exec_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__log_and_notify</span><span class="p">(</span><span class="n">best_word</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__log_and_notify</span><span class="p">(</span><span class="n">best_word</span><span class="p">,</span> <span class="n">best_score</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__filter_dictionnary</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
         <span class="c1"># Merge invalid word sets and persist</span>
@@ -408,7 +409,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__save_invalid_words</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Persisted </span><span class="si">%d</span><span class="s2"> new invalid words to global dictionary&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">newly_added</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__record_stats</span><span class="p">(</span><span class="n">day</span><span class="p">,</span> <span class="n">best_word</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__record_stats</span><span class="p">(</span><span class="n">day</span><span class="p">,</span> <span class="n">best_word</span><span class="p">,</span> <span class="n">best_score</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">best_word</span><span class="p">,</span> <span class="n">best_score</span></div>
 </div>
 
