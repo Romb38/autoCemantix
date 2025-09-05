@@ -70,7 +70,7 @@ class CemantixSolver:
             self.logger.warn("No statistics file given, statistics will not be saved")
 
 
-    def __record_stats(self, puzzle_number, word, exec_time):
+    def __record_stats(self, puzzle_number, word, score, exec_time):
         """
         Record solving statistics into a CSV file.
 
@@ -85,6 +85,7 @@ class CemantixSolver:
             "timestamp": datetime.now().isoformat(),
             "puzzle_number": puzzle_number,
             "word": word,
+            "score": score,
             "solving_time": round(exec_time, 2),
             "requests_count": self.request_count,
             "api_delay": self.api_delay,
@@ -194,14 +195,14 @@ class CemantixSolver:
                 time.sleep(self.api_delay)
         return None
 
-    def __log_and_notify(self, word, exec_time):
+    def __log_and_notify(self, word, score, exec_time):
         """
         Send a notification when the solution is found.
 
         :param str word: The found word (the solution).
         :param float exec_time: Execution time in seconds.
         """
-        msg = f"Mot trouvé: {word}, Requêtes: {self.request_count}, Temps: {exec_time:.2f} sec"
+        msg = f"Mot trouvé: {word} (score : {score}), Requêtes: {self.request_count}, Temps: {exec_time:.2f} sec"
         self.logger.info("Résultat final → %s", msg)
         token = os.getenv("NTFY_TOKEN")
         subject = os.getenv("NTFY_SUBJECT")
@@ -325,7 +326,7 @@ class CemantixSolver:
         self.logger.info("Solving ended")
 
         exec_time = time.time() - start_time
-        self.__log_and_notify(best_word, exec_time)
+        self.__log_and_notify(best_word, best_score, exec_time)
         self.__filter_dictionnary(model)
 
         # Merge invalid word sets and persist
@@ -333,5 +334,5 @@ class CemantixSolver:
         self.invalid_words.update(self.daily_invalid_words)
         self.__save_invalid_words()
         self.logger.info("Persisted %d new invalid words to global dictionary", len(newly_added))
-        self.__record_stats(day, best_word, exec_time)
+        self.__record_stats(day, best_word, best_score, exec_time)
         return best_word, best_score

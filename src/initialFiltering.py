@@ -37,8 +37,12 @@ def filter_model_from_config(cfg):
             return False
         if not word[0].isalnum():
             return False
-        if not re.match(r'^[a-zA-Z0-9-]*$', word):
+        if not word.replace("-","").isalnum():
+            if word == "détention":
+                print("Detected")
             return False
+        if word == "détention":
+            print("ok")
         return True
 
     def is_plural(word):
@@ -72,7 +76,6 @@ def filter_model_from_config(cfg):
 
     filtered_words = {}
     total_words = len(model.key_to_index)
-
     for i, word in enumerate(model.key_to_index):
         if i % (total_words // 100) == 0:
             logger.info(f"Progress: {i/total_words*100:.2f}% ({i}/{total_words})")
@@ -90,8 +93,8 @@ def filter_model_from_config(cfg):
 
         filtered_words[word] = model[word]
 
+    logger.info(f"{total_words - len(filtered_words)} invalid words found")
     logger.info(f"{len(filtered_words)} valid words after filtering")
-
     filtered_model = KeyedVectors(vector_size=model.vector_size)
     filtered_model.add_vectors(list(filtered_words.keys()), list(filtered_words.values()))
 

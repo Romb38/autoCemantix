@@ -4,3 +4,4 @@ __pycache__/
 logs/solver.log
 .env
 _build/
+src/resources/stats.csv

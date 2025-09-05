@@ -1,2 +1,2 @@
-timestamp,puzzle_number,word,solving_time,requests_count,api_delay,invalid_word_removed_count
-2025-09-02T01:14:16.587687,1280,noeud,270.8,448,0.5,0
+timestamp,puzzle_number,word,score,solving_time,requests_count,api_delay,invalid_word_removed_count
+2025-09-05T18:04:16.227173,1283,détention,1.0,223.42,329,0.5,7
