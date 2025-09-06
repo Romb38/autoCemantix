@@ -59,7 +59,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#src.configLoader.load_config"><code class="docutils literal notranslate"><span class="pre">load_config()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#src.configLoader.setup_logging"><code class="docutils literal notranslate"><span class="pre">setup_logging()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#src.initialFiltering.filter_model_from_config"><code class="docutils literal notranslate"><span class="pre">filter_model_from_config()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -255,26 +254,6 @@ to guess the hidden word by querying the Cemantix API for similarity scores.</p>
 <li><p><strong>log_level</strong> (<em>str</em>) – Logging level as a string (e.g., ‘INFO’, ‘DEBUG’).</p></li>
 <li><p><strong>log_file</strong> (<em>str</em>) – Path to the log file. If empty, logs are output to stdout.</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function" id="module-src.initialFiltering">
-<dt class="sig sig-object py" id="src.initialFiltering.filter_model_from_config">
-<span class="sig-name descname"><span class="pre">filter_model_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/initialFiltering.html#filter_model_from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.initialFiltering.filter_model_from_config" title="Link to this definition"></a></dt>
-<dd><p>Filter the Word2Vec model by removing invalid, plural, conjugated,
-or otherwise unwanted words based on the glossary provided in the config.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cfg</strong> (<em>dict</em>) – Configuration dictionary containing the following keys:
-- model_path (str): Path to the Word2Vec model file.
-- invalid_dict_path (str): Path to the pickle file with invalid words.
-- glossary (str): Path to the TSV glossary file.
-- log_level (str): Logging level (e.g., ‘INFO’).
-- log_file (str or None): Logging output file (optional).</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
