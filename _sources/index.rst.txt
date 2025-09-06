@@ -5,5 +5,5 @@
    :maxdepth: 2
    :caption: API Reference
 
+   statistics
    modules
-
