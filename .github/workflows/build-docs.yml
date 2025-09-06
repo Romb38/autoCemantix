@@ -30,15 +30,18 @@ jobs:
         echo "Using project name: $REPO_NAME"
         sed -i "s|os.getenv(\"PROJECT_NAME\", .*|os.getenv(\"PROJECT_NAME\", \"$REPO_NAME\")|" docs/conf.py
 
+    - name: Generate statistics pictures
+      run: |
+        python main.py generate-stat-graph
+
     - name: Build documentation
       run: |
         cd docs
         sphinx-build -b html . _build/html
 
-    
+
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GH_PAT }}
         publish_dir: docs/_build/html
-

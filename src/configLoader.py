@@ -45,7 +45,8 @@ def load_config(filename="src/resources/config.ini"):
         "log_level": cfg.get("log_level", "INFO").upper(),
         "log_file": cfg.get("log_file", "").strip(),
         "glossary": cfg.get("glossary_path", None),
-        "stats_file": cfg.get("statistics_path", None)
+        "stats_file": cfg.get("statistics_path", None),
+        "graphs_saving_folder": cfg.get("graphs_saving_folder", "doc/img")
     }
 
     return config
@@ -63,7 +64,7 @@ def setup_logging(log_level: str, log_file: str):
     handlers = []
     if log_file:
         handlers.append(logging.FileHandler(log_file, mode="a", encoding="utf-8"))
-    
+
     handlers.append(logging.StreamHandler(sys.stdout))
 
     logging.basicConfig(
