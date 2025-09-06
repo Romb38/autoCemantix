@@ -1,3 +1,7 @@
+##
+# @file generateStatsGraph.py
+# @brief Module to generate some statistics graph based on file defined by config file
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -40,7 +44,7 @@ def create_graph_stats(cfg):
         plt.title(title)
         plt.xlabel("Day")
         if column == "solving_time":
-            plt.ylabel(column.replace("_", " ").title() + "(sec)")
+            plt.ylabel(column.replace("_", " ").title() + " (sec)")
         else :
             plt.ylabel(column.replace("_", " ").title())
         plt.grid(True)
