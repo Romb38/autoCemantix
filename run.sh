@@ -7,3 +7,6 @@ set -e
 cd "$(dirname "$0")"
 word=$(.venv/bin/python main.py solve)
 
+git add src/resources/frWac.bin src/resources/invalid_words.pkl
+git commit -m "Daily dictionary update"
+git push
