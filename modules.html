@@ -89,9 +89,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="technical-documentation">
-<h1>Technical documentation<a class="headerlink" href="#technical-documentation" title="Link to this heading"></a></h1>
-<dl class="py class" id="module-src.CemantixSolver">
+  <section id="module-src.CemantixSolver">
+<span id="technical-documentation"></span><h1>Technical documentation<a class="headerlink" href="#module-src.CemantixSolver" title="Link to this heading"></a></h1>
+<dl class="py class">
 <dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CemantixSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CemantixSolver.html#CemantixSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CemantixSolver.CemantixSolver" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -280,7 +280,12 @@ or otherwise unwanted words based on the glossary provided in the config.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function" id="module-src.generateStatsGraph">
+<p id="module-src.generateStatsGraph">Module to generate statistics graphs based on the file defined in the config.</p>
+<p>Generates:
+- invalid_word_removed_count_per_day.png
+- requests_count_per_day.png
+- solving_time_per_day.png</p>
+<dl class="py function">
 <dt class="sig sig-object py" id="src.generateStatsGraph.create_graph_stats">
 <span class="sig-name descname"><span class="pre">create_graph_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/generateStatsGraph.html#create_graph_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.generateStatsGraph.create_graph_stats" title="Link to this definition"></a></dt>
 <dd><p>Create three graphs based on statistics file in folder specified by config file. It creates :

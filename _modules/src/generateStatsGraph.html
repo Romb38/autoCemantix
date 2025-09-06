@@ -70,9 +70,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.generateStatsGraph</h1><div class="highlight"><pre>
-<span></span><span class="c1">##</span>
-<span class="c1"># @file generateStatsGraph.py</span>
-<span class="c1"># @brief Module to generate some statistics graph based on file defined by config file</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module to generate statistics graphs based on the file defined in the config.</span>
+
+<span class="sd">Generates:</span>
+<span class="sd">- invalid_word_removed_count_per_day.png</span>
+<span class="sd">- requests_count_per_day.png</span>
+<span class="sd">- solving_time_per_day.png</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>

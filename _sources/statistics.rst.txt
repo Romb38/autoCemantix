@@ -1,5 +1,5 @@
 Statistics
-============
+==========
 
 The following graphs are generated automatically from the usage data
 stored in `stats.csv`. They show various trends over time.

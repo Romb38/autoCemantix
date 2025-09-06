@@ -1,5 +1,6 @@
 Technical documentation
-=============
+=======================
+
 .. automodule:: src.CemantixSolver
     :members:
     :private-members:
