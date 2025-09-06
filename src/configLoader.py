@@ -63,8 +63,8 @@ def setup_logging(log_level: str, log_file: str):
     handlers = []
     if log_file:
         handlers.append(logging.FileHandler(log_file, mode="a", encoding="utf-8"))
-    else:
-        handlers.append(logging.StreamHandler(sys.stdout))
+    
+    handlers.append(logging.StreamHandler(sys.stdout))
 
     logging.basicConfig(
         level=numeric_level,

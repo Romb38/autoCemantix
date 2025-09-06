@@ -2,7 +2,7 @@
 
 You can find here things that I want to add to my solver :
 
-## 🧼 Update dictionaries daily
+## 🧼 Update dictionaries daily - DONE in 082ca5e
 
 My script run at home on a server. I want to update the following everyday :
 - `src/resources/frWac.bin` : Model for Cemantix, removing invalid words everyday
