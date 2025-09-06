@@ -1,4 +1,4 @@
-API Reference
+Technical documentation
 =============
 .. automodule:: src.CemantixSolver
     :members:

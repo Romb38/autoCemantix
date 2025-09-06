@@ -3,7 +3,7 @@
 
 .. toctree::
    :maxdepth: 2
-   :caption: API Reference
+   :caption: Documentation
 
    statistics
    modules
