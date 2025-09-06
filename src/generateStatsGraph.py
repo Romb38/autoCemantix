@@ -1,6 +1,12 @@
-##
-# @file generateStatsGraph.py
-# @brief Module to generate some statistics graph based on file defined by config file
+"""
+Module to generate statistics graphs based on the file defined in the config.
+
+Generates:
+- invalid_word_removed_count_per_day.png
+- requests_count_per_day.png
+- solving_time_per_day.png
+"""
+
 
 import pandas as pd
 import matplotlib.pyplot as plt
