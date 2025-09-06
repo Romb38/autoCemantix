@@ -5,9 +5,7 @@ The following graphs are generated automatically from the usage data
 stored in `stats.csv`. They show various trends over time.
 
 .. note::
-
    These graphs are regenerated on each build using the latest available data.
-   The source file `stats.csv` is not versioned in the repository.
 
 Invalid Words Removed per Day
 -----------------------------
