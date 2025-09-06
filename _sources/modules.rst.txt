@@ -16,7 +16,7 @@ Technical documentation
     :undoc-members:
     :show-inheritance:
 
-  .. automodule:: src.generateStatsGraph
-      :members:
-      :undoc-members:
-      :show-inheritance:
+.. automodule:: src.generateStatsGraph
+    :members:
+    :undoc-members:
+    :show-inheritance:

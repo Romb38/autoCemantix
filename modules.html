@@ -59,6 +59,8 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#src.configLoader.load_config"><code class="docutils literal notranslate"><span class="pre">load_config()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#src.configLoader.setup_logging"><code class="docutils literal notranslate"><span class="pre">setup_logging()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#src.initialFiltering.filter_model_from_config"><code class="docutils literal notranslate"><span class="pre">filter_model_from_config()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#src.generateStatsGraph.create_graph_stats"><code class="docutils literal notranslate"><span class="pre">create_graph_stats()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -256,6 +258,38 @@ to guess the hidden word by querying the Cemantix API for similarity scores.</p>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function" id="module-src.initialFiltering">
+<dt class="sig sig-object py" id="src.initialFiltering.filter_model_from_config">
+<span class="sig-name descname"><span class="pre">filter_model_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/initialFiltering.html#filter_model_from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.initialFiltering.filter_model_from_config" title="Link to this definition"></a></dt>
+<dd><p>Filter the Word2Vec model by removing invalid, plural, conjugated,
+or otherwise unwanted words based on the glossary provided in the config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cfg</strong> (<em>dict</em>) – Configuration dictionary containing the following keys:
+- model_path (str): Path to the Word2Vec model file.
+- invalid_dict_path (str): Path to the pickle file with invalid words.
+- glossary (str): Path to the TSV glossary file.
+- log_level (str): Logging level (e.g., ‘INFO’).
+- log_file (str or None): Logging output file (optional).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function" id="module-src.generateStatsGraph">
+<dt class="sig sig-object py" id="src.generateStatsGraph.create_graph_stats">
+<span class="sig-name descname"><span class="pre">create_graph_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/generateStatsGraph.html#create_graph_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.generateStatsGraph.create_graph_stats" title="Link to this definition"></a></dt>
+<dd><p>Create three graphs based on statistics file in folder specified by config file. It creates :
+- invalid_word_removed_count_per_day.png
+- requests_count_per_day.png
+- solving_time_per_day.png
+If the folder doesn’t exists, it will be created.</p>
+<p>:param dict cfg Config file as python dictionary
+:returns: None</p>
 </dd></dl>
 
 </section>
