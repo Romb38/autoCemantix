@@ -1,9 +1,11 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import os
 
 def create_graph_stats(cfg):
-
+    os.makedirs(cfg['graphs_saving_folder'], exist_ok=True)
+    
     df = pd.read_csv(cfg["stats_file"], parse_dates=["timestamp"])
     df["day"] = df["timestamp"].dt.date
 

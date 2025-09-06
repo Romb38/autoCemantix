@@ -1,4 +1,4 @@
-📊 Statistics
+Statistics
 ============
 
 The following graphs are generated automatically from the usage data
