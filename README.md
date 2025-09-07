@@ -76,13 +76,13 @@ You can configure a lot this script, but it is advised to use the default config
 
 ## 🔔 Ntfy Configuration
 
-In this project, i used [ntfy](https://ntfy.sh/) to send me custom notification with some statistics. Here is the line that I'm using to send the notification :
+In this project, i used a [ntfy](https://ntfy.sh/) server to send me custom notification with some statistics. Here is the line that I'm using to send the notification :
 
 ```bash
-ntfy publish --token {token} {ntfy_url}/{subject} "{msg}"
+curl -H "Authorization: Bearer {token}" -d "{msg}" {ntfy_url}/{subject}
 ```
 
-Values in brackets are configured by using a `.env` file located at the root of the project. You can use the `.env.example`
+Values in brackets are configured by using a `.env` file located at the root of the project. You can see them `.env.example`
 
 ```bash
 NTFY_TOKEN=XXXXX # Token is required if you're using a instance with password
