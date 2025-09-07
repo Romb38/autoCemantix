@@ -145,11 +145,11 @@ python3<span class="w"> </span>main.py<span class="w"> </span>init<span class="w
 </section>
 <section id="ntfy-configuration">
 <h1>🔔 Ntfy Configuration<a class="headerlink" href="#ntfy-configuration" title="Link to this heading"></a></h1>
-<p>In this project, i used <a class="reference external" href="https://ntfy.sh/">ntfy</a> to send me custom notification with some statistics. Here is the line that I’m using to send the notification :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ntfy<span class="w"> </span>publish<span class="w"> </span>--token<span class="w"> </span><span class="o">{</span>token<span class="o">}</span><span class="w"> </span><span class="o">{</span>ntfy_url<span class="o">}</span>/<span class="o">{</span>subject<span class="o">}</span><span class="w"> </span><span class="s2">&quot;{msg}&quot;</span>
+<p>In this project, i used a <a class="reference external" href="https://ntfy.sh/">ntfy</a> server to send me custom notification with some statistics. Here is the line that I’m using to send the notification :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer {token}&quot;</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;{msg}&quot;</span><span class="w"> </span><span class="o">{</span>ntfy_url<span class="o">}</span>/<span class="o">{</span>subject<span class="o">}</span>
 </pre></div>
 </div>
-<p>Values in brackets are configured by using a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file located at the root of the project. You can use the <code class="docutils literal notranslate"><span class="pre">.env.example</span></code></p>
+<p>Values in brackets are configured by using a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file located at the root of the project. You can see them <code class="docutils literal notranslate"><span class="pre">.env.example</span></code></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">NTFY_TOKEN</span><span class="o">=</span>XXXXX<span class="w"> </span><span class="c1"># Token is required if you&#39;re using a instance with password</span>
 <span class="nv">NTFY_SUBJECT</span><span class="o">=</span>XXXXX<span class="w"> </span><span class="c1"># Subject to send notification to</span>
 <span class="nv">NTFY_URL</span><span class="o">=</span>https://ntfy.exemple.fr<span class="w"> </span><span class="c1"># Adress of the ntfy server</span>
