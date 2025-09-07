@@ -8,6 +8,12 @@ def main():
     parser = argparse.ArgumentParser(description="Cemantix solver and model initializer")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    parser.add_argument(
+        "--config", "-c",
+        default="src/resources/config.ini",
+        help="Path to the configuration file (default: src/resources/config.ini)"
+    )
+
     subparsers.add_parser("init", help="Initialize the model with filtering")
 
     subparsers.add_parser("generate-stat-graph", help="Generate statistics graph")
@@ -18,7 +24,7 @@ def main():
     solve_parser.add_argument("-n", "--ntfy", action="store_true", help="Save solving statistics. Must have NTFY configured in .env and curl installed")
 
     args = parser.parse_args()
-    cfg = load_config()
+    cfg = load_config(args.config)
 
     if args.command == "init":
         filter_model_from_config(cfg)
