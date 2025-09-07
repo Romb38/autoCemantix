@@ -240,11 +240,13 @@ class CemantixSolver:
         filtered_model.save_word2vec_format(self.model_path, binary=True)
         self.logger.info("Filtered model saved to %s with %d words", self.model_path, len(valid_words))
 
-    def solve(self, day=None):
+    def solve(self, day=None, filtering=False, save_stats=True):
         """
         Start solving the Cemantix puzzle using beam search and a Word2Vec model.
 
         :param int day: (Optional) Puzzle number to solve. If None, the current day's puzzle will be used.
+        :param bool filtering: (Optional) Enable dictionary filtering by removing invalid words found during solving
+        :param  bool save_stats: (Optional) Save statistics in a statistics file defined in config
         :returns: A tuple (best_word, best_score) or None if no solution was found.
         :rtype: tuple or None
         """
@@ -281,7 +283,9 @@ class CemantixSolver:
 
         best_score, best_word = -beam[0][0], beam[0][1]
 
-        while best_score < 1.0:
+        solution_found = False
+
+        while not solution_found and best_score < 1.0:
             new_candidates = []
 
             for _ in range(min(self.beam_size, len(beam))):
@@ -308,12 +312,21 @@ class CemantixSolver:
                     if score > best_score:
                         best_score, best_word = score, neigh
                         self.logger.info("New best: %s → %.4f", neigh, score)
-                        if best_score >= 1.0:
+                        if best_score == 1.0:
                             self.logger.info("Solution found: %s → %.4f", best_word, best_score)
+                            solution_found = True
                             break
 
                     time.sleep(self.api_delay)
-            if best_score >= 1.0:
+
+                if solution_found:
+                    break
+
+            if solution_found:
+                break
+
+            if not new_candidates:
+                self.logger.warning("No new candidates found, stopping.")
                 break
 
             for item in new_candidates:
@@ -329,12 +342,15 @@ class CemantixSolver:
 
         exec_time = time.time() - start_time
         self.__log_and_notify(best_word, best_score, exec_time)
-        self.__filter_dictionnary(model)
 
-        # Merge invalid word sets and persist
-        newly_added = self.daily_invalid_words - self.invalid_words
-        self.invalid_words.update(self.daily_invalid_words)
-        self.__save_invalid_words()
-        self.logger.info("Persisted %d new invalid words to global dictionary", len(newly_added))
-        self.__record_stats(day, best_word, best_score, exec_time)
+        if filtering :
+            self.__filter_dictionnary(model)
+            newly_added = self.daily_invalid_words - self.invalid_words
+            self.invalid_words.update(self.daily_invalid_words)
+            self.__save_invalid_words()
+            self.logger.info("Persisted %d new invalid words to global dictionary", len(newly_added))
+
+        if save_stats:
+            self.__record_stats(day, best_word, best_score, exec_time)
+
         return best_word, best_score
