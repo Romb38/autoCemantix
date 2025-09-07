@@ -16,12 +16,12 @@ def filter_model_from_config(cfg):
 
     :param dict cfg: Configuration dictionary containing the following keys:
 
-        - model_path (str): Path to the Word2Vec model file.
-        - invalid_dict_path (str): Path to the pickle file with invalid words.
-        - glossary (str): Path to the TSV glossary file.
-        - log_level (str): Logging level (e.g., 'INFO').
-        - log_file (str or None): Logging output file (optional).
-        
+        - **model_path** (`str`): Path to the Word2Vec model file.
+        - **invalid_dict_path** (`str`): Path to the pickle file with invalid words.
+        - **glossary** (`str`): Path to the TSV glossary file.
+        - **log_level** (`str`): Logging level (e.g., 'INFO').
+        - **log_file** (`str` or `None`): Logging output file (optional).
+
     :returns: None
     """
 
