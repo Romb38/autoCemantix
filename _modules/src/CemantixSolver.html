@@ -317,11 +317,13 @@
 
 <div class="viewcode-block" id="CemantixSolver.solve">
 <a class="viewcode-back" href="../../modules.html#src.CemantixSolver.CemantixSolver.solve">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filtering</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Start solving the Cemantix puzzle using beam search and a Word2Vec model.</span>
 
 <span class="sd">        :param int day: (Optional) Puzzle number to solve. If None, the current day&#39;s puzzle will be used.</span>
+<span class="sd">        :param bool filtering: (Optional) Enable dictionary filtering by removing invalid words found during solving</span>
+<span class="sd">        :param  bool save_stats: (Optional) Save statistics in a statistics file defined in config</span>
 <span class="sd">        :returns: A tuple (best_word, best_score) or None if no solution was found.</span>
 <span class="sd">        :rtype: tuple or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -358,7 +360,9 @@
 
         <span class="n">best_score</span><span class="p">,</span> <span class="n">best_word</span> <span class="o">=</span> <span class="o">-</span><span class="n">beam</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">beam</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="k">while</span> <span class="n">best_score</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="n">solution_found</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">solution_found</span> <span class="ow">and</span> <span class="n">best_score</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
             <span class="n">new_candidates</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">beam</span><span class="p">))):</span>
@@ -385,12 +389,21 @@
                     <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="n">best_score</span><span class="p">:</span>
                         <span class="n">best_score</span><span class="p">,</span> <span class="n">best_word</span> <span class="o">=</span> <span class="n">score</span><span class="p">,</span> <span class="n">neigh</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New best: </span><span class="si">%s</span><span class="s2"> → </span><span class="si">%.4f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">neigh</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">best_score</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">best_score</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Solution found: </span><span class="si">%s</span><span class="s2"> → </span><span class="si">%.4f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">best_word</span><span class="p">,</span> <span class="n">best_score</span><span class="p">)</span>
+                            <span class="n">solution_found</span> <span class="o">=</span> <span class="kc">True</span>
                             <span class="k">break</span>
 
                     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_delay</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">best_score</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="n">solution_found</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">solution_found</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">new_candidates</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No new candidates found, stopping.&quot;</span><span class="p">)</span>
                 <span class="k">break</span>
 
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">new_candidates</span><span class="p">:</span>
@@ -406,14 +419,17 @@
 
         <span class="n">exec_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__log_and_notify</span><span class="p">(</span><span class="n">best_word</span><span class="p">,</span> <span class="n">best_score</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__filter_dictionnary</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
-        <span class="c1"># Merge invalid word sets and persist</span>
-        <span class="n">newly_added</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__save_invalid_words</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Persisted </span><span class="si">%d</span><span class="s2"> new invalid words to global dictionary&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">newly_added</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__record_stats</span><span class="p">(</span><span class="n">day</span><span class="p">,</span> <span class="n">best_word</span><span class="p">,</span> <span class="n">best_score</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filtering</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__filter_dictionnary</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="n">newly_added</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__save_invalid_words</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Persisted </span><span class="si">%d</span><span class="s2"> new invalid words to global dictionary&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">newly_added</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">save_stats</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__record_stats</span><span class="p">(</span><span class="n">day</span><span class="p">,</span> <span class="n">best_word</span><span class="p">,</span> <span class="n">best_score</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">best_word</span><span class="p">,</span> <span class="n">best_score</span></div>
 </div>
 

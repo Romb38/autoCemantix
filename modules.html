@@ -207,11 +207,15 @@ to guess the hidden word by querying the Cemantix API for similarity scores.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CemantixSolver.html#CemantixSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.solve" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtering</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CemantixSolver.html#CemantixSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.solve" title="Link to this definition"></a></dt>
 <dd><p>Start solving the Cemantix puzzle using beam search and a Word2Vec model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>day</strong> (<em>int</em>) – (Optional) Puzzle number to solve. If None, the current day’s puzzle will be used.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>day</strong> (<em>int</em>) – (Optional) Puzzle number to solve. If None, the current day’s puzzle will be used.</p></li>
+<li><p><strong>filtering</strong> (<em>bool</em>) – (Optional) Enable dictionary filtering by removing invalid words found during solving</p></li>
+<li><p><strong>save_stats</strong> (<em>bool</em>) – (Optional) Save statistics in a statistics file defined in config</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A tuple (best_word, best_score) or None if no solution was found.</p>
