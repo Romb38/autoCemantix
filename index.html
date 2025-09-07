@@ -110,16 +110,10 @@ python3<span class="w"> </span>main.py<span class="w"> </span>solve
 </section>
 <section id="dictionary-filtering">
 <h1>🧹 Dictionary filtering<a class="headerlink" href="#dictionary-filtering" title="Link to this heading"></a></h1>
-<p>To start filtering a new Word2Vec model, follow these steps :</p>
-<ul class="simple">
-<li><p>Change the <code class="docutils literal notranslate"><span class="pre">model_path</span></code> properties in the <a class="reference internal" href="#-configuration"><span class="xref myst">configuration file</span></a> to point to your new model</p></li>
-<li><p>Execute the following, it will take a bit of time, but you can follow the filtering inside of logs (default location : <code class="docutils literal notranslate"><span class="pre">logs/solver.log</span></code>)</p></li>
-</ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
-python3<span class="w"> </span>main.py<span class="w"> </span>init<span class="w"> </span><span class="p">&amp;</span>
-</pre></div>
-</div>
-<p>To give you more information, this script applies the following filters :</p>
+<p>To start filtering a new Word2Vec model, you’ll need to configure it’s path into the <a class="reference internal" href="#-configuration"><span class="xref myst">configuration file</span></a> (<code class="docutils literal notranslate"><span class="pre">model_path</span></code> field). Then you can choose between these two filtering methods :</p>
+<section id="local-filtering">
+<h2>Local filtering<a class="headerlink" href="#local-filtering" title="Link to this heading"></a></h2>
+<p>Filtering the model locally applies the following filters :</p>
 <ul class="simple">
 <li><p>Word exists in French dictionary</p></li>
 <li><p>Word have more than 1 letters</p></li>
@@ -129,7 +123,25 @@ python3<span class="w"> </span>main.py<span class="w"> </span>init<span class="w
 <li><p>Word do not contains non-alphanumeric characters other than “-”</p></li>
 <li><p>Word is not inside of previously tested word (listed in <code class="docutils literal notranslate"><span class="pre">src/resources/invalid_words.pkl</span></code>)</p></li>
 </ul>
-<p>To applies these filter, the script is using this <a class="reference external" href="http://www.lexique.org/">glossary</a>.</p>
+<p>In order to applies these filter, the script is using this <a class="reference external" href="http://www.lexique.org/">glossary</a>.</p>
+<p><strong>Execution :</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+<span class="w">  </span>python3<span class="w"> </span>main.py<span class="w"> </span>filter<span class="w"> </span><span class="o">[</span>-n/--ntfy<span class="o">]</span><span class="w"> </span><span class="p">&amp;</span>
+</pre></div>
+</div>
+<p>The option <code class="docutils literal notranslate"><span class="pre">-n</span></code> let the user to be notified when the filter is finished using <a class="reference internal" href="#-ntfy-configuration"><span class="xref myst">ntfy configuration</span></a></p>
+</section>
+<section id="filter-using-cemantix-api">
+<h2>Filter using Cemantix API<a class="headerlink" href="#filter-using-cemantix-api" title="Link to this heading"></a></h2>
+<p><strong>Caution</strong> : This filter can take a very long time as it’s using Cemantix API and some delay. You should use it inside of a screen session</p>
+<p>This filter takes every words of the model and send them to Cemantix. If Cemantinx doesn’t know the word, the script filter it from the model.</p>
+<p><strong>Execution :</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+<span class="w">  </span>python3<span class="w"> </span>main.py<span class="w"> </span>filter<span class="w"> </span><span class="o">(</span>-c/--cemantix<span class="o">)</span><span class="w"> </span><span class="o">[</span>-n/--ntfy<span class="o">]</span><span class="w"> </span><span class="p">&amp;</span>
+</pre></div>
+</div>
+<p>The option <code class="docutils literal notranslate"><span class="pre">-n</span></code> let the user to be notified when the filter is finished using <a class="reference internal" href="#-ntfy-configuration"><span class="xref myst">ntfy configuration</span></a></p>
+</section>
 </section>
 <section id="statistics">
 <h1>📊 Statistics<a class="headerlink" href="#statistics" title="Link to this heading"></a></h1>
@@ -144,7 +156,11 @@ python3<span class="w"> </span>main.py<span class="w"> </span>init<span class="w
 </pre></div>
 </div>
 <p>We save only the first solving because we remove invalid_words from the model. This fact let statistics becomes false after 1 solving.</p>
-<p>You can currently see some statistics in the <a class="reference external" href="https://romb38.github.io/autoCemantix/statistics.html">project’s documentation</a>.</p>
+<p>You can currently see some statistics in the <a class="reference external" href="https://romb38.github.io/autoCemantix/statistics.html">project’s documentation</a>. These graphs are generated using this commands :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+python3<span class="w"> </span>main.py<span class="w"> </span>generate-stat-graph<span class="w"> </span><span class="c1"># Store graphs inside of the folder defined in configuration</span>
+</pre></div>
+</div>
 </section>
 <section id="configuration">
 <h1>🔧 Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h1>
@@ -190,7 +206,7 @@ python3<span class="w"> </span>main.py<span class="w"> </span>init<span class="w
 <li class="toctree-l2"><a class="reference internal" href="modules.html#src.CemantixSolver.CemantixSolver"><code class="docutils literal notranslate"><span class="pre">CemantixSolver</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules.html#src.configLoader.load_config"><code class="docutils literal notranslate"><span class="pre">load_config()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules.html#src.configLoader.setup_logging"><code class="docutils literal notranslate"><span class="pre">setup_logging()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules.html#src.initialFiltering.filter_model_from_config"><code class="docutils literal notranslate"><span class="pre">filter_model_from_config()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#src.localFiltering.filter_model_locally"><code class="docutils literal notranslate"><span class="pre">filter_model_locally()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules.html#src.generateStatsGraph.create_graph_stats"><code class="docutils literal notranslate"><span class="pre">create_graph_stats()</span></code></a></li>
 </ul>
 </li>

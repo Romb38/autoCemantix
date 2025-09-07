@@ -86,8 +86,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">requests.structures</span><span class="w"> </span><span class="kn">import</span> <span class="n">CaseInsensitiveDict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gensim.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyedVectors</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.configLoader</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.localFiltering</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_model_locally</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
@@ -131,6 +131,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">user_agent</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;user_agent&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;content_type&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;max_retries&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">glossary</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;glossary&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="n">CaseInsensitiveDict</span><span class="p">({</span>
             <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span>
@@ -144,8 +145,6 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats_file</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No stats file configured&quot;</span><span class="p">)</span>
-
-
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__record_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">puzzle_number</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -329,6 +328,37 @@
         <span class="c1"># Save filtered model</span>
         <span class="n">filtered_model</span><span class="o">.</span><span class="n">save_word2vec_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Filtered model saved to </span><span class="si">%s</span><span class="s2"> with </span><span class="si">%d</span><span class="s2"> words&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_words</span><span class="p">))</span>
+
+<div class="viewcode-block" id="CemantixSolver.localFiltering">
+<a class="viewcode-back" href="../../modules.html#src.CemantixSolver.CemantixSolver.localFiltering">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">localFiltering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntfy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filter words using rules implemented in local.</span>
+
+<span class="sd">        :param bool ntfy: (Optional) Send a notification using NTFY .env configuration</span>
+<span class="sd">        :returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading model &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">KeyedVectors</span><span class="o">.</span><span class="n">load_word2vec_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unicode_errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Model loaded&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span> <span class="o">=</span> <span class="n">filter_model_locally</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">glossary</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ntfy</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__ntfy</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error as occured&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__filter_dictionnary</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">newly_added</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__save_invalid_words</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">ntfy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__ntfy</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Filtering ended, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">newly_added</span><span class="p">)</span><span class="si">}</span><span class="s2"> words filtered from dictionary&quot;</span><span class="p">)</span></div>
+
+
 
 <div class="viewcode-block" id="CemantixSolver.cemantixFiltering">
 <a class="viewcode-back" href="../../modules.html#src.CemantixSolver.CemantixSolver.cemantixFiltering">[docs]</a>
