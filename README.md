@@ -31,6 +31,12 @@ source .venv/bin/activate
 python3 main.py solve
 ```
 
+You can also add options to this script :
+```
+--stats/-s : Saves statistics inside of the statistics file defined in config
+--filtering/-f : Enable automatic filtering of invalid words found during solving
+```
+
 ## 🧹 Dictionary filtering
 
 To start filtering a new Word2Vec model, follow these steps :

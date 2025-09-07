@@ -13,7 +13,7 @@ for arg in "$@"; do
     fi
 done
 
-word=$(.venv/bin/python main.py solve)
+word=$(.venv/bin/python main.py solve -fs)
 
 if $GIT_UPDATE; then
     git add src/resources/frWac.bin src/resources/invalid_words.pkl src/resources/stats.csv
