@@ -14,7 +14,8 @@ def main():
 
     solve_parser = subparsers.add_parser("solve", help="Solve Cemantix")
     solve_parser.add_argument("-f", "--filtering", action="store_true", help="Enable filtering before solving")
-    solve_parser.add_argument("-s", "--stats", action="store_true", help="Save solving statistics")
+    solve_parser.add_argument("-s", "--stats", action="store_true", help="Save solving statistics. Must have a statistics file defined in configuration")
+    solve_parser.add_argument("-n", "--ntfy", action="store_true", help="Save solving statistics. Must have NTFY configured in .env and curl installed")
 
     args = parser.parse_args()
     cfg = load_config()
@@ -25,7 +26,8 @@ def main():
         solver = CemantixSolver(cfg)
         result = solver.solve(
             filtering=args.filtering,
-            save_stats=args.stats
+            save_stats=args.stats,
+            ntfy=args.ntfy
         )
     elif args.command == "generate-stat-graph":
         create_graph_stats(cfg)

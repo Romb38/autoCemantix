@@ -40,7 +40,7 @@ class CemantixSolver:
         self.logger = logging.getLogger(__name__)
 
         if not(os.getenv("NTFY_URL") and os.getenv("NTFY_SUBJECT")):
-            self.logger.warn("No NTFY config found")
+            self.logger.info("No NTFY config found")
 
         self.invalid_words_file = config["invalid_dict_path"]
         self.invalid_words = self.__load_invalid_words()
@@ -66,8 +66,10 @@ class CemantixSolver:
         })
         self.similar_cache = {}
         self.stats_file = config["stats_file"]
-        if self.stats_file is None:
-            self.logger.warn("No statistics file given, statistics will not be saved")
+
+        if not self.stats_file:
+            self.logger.info("No stats file configured")
+
 
 
     def __record_stats(self, puzzle_number, word, score, exec_time):
@@ -79,6 +81,7 @@ class CemantixSolver:
         :param float exec_time: Total time taken to solve the puzzle.
         """
         if not self.stats_file:
+            self.logger.error("No statistics file setup, statistics will not be saved")
             return
 
         stats_row = {
@@ -211,6 +214,8 @@ class CemantixSolver:
         if  subject and ntfy_url:
             #os.system(f'ntfy publish --token {token} {ntfy_url}/{subject} "{msg}"')
             os.system(f'curl -H "Authorization: Bearer {token}" -d "{msg}" {ntfy_url}/{subject}')
+        else :
+            self.logger.error("No NTFY config found, set it up inside of .env file")
 
     def __filter_dictionnary(self, model):
         """
@@ -240,13 +245,14 @@ class CemantixSolver:
         filtered_model.save_word2vec_format(self.model_path, binary=True)
         self.logger.info("Filtered model saved to %s with %d words", self.model_path, len(valid_words))
 
-    def solve(self, day=None, filtering=False, save_stats=True):
+    def solve(self, day=None, filtering=False, save_stats=True, ntfy=False):
         """
         Start solving the Cemantix puzzle using beam search and a Word2Vec model.
 
         :param int day: (Optional) Puzzle number to solve. If None, the current day's puzzle will be used.
         :param bool filtering: (Optional) Enable dictionary filtering by removing invalid words found during solving
-        :param  bool save_stats: (Optional) Save statistics in a statistics file defined in config
+        :param bool save_stats: (Optional) Save statistics in a statistics file defined in config
+        :param bool ntfy: (Optional) Send a notification using NTFY .env configuration
         :returns: A tuple (best_word, best_score) or None if no solution was found.
         :rtype: tuple or None
         """
@@ -341,7 +347,9 @@ class CemantixSolver:
         self.logger.info("Solving ended")
 
         exec_time = time.time() - start_time
-        self.__log_and_notify(best_word, best_score, exec_time)
+
+        if ntfy:
+            self.__log_and_notify(best_word, best_score, exec_time)
 
         if filtering :
             self.__filter_dictionnary(model)
