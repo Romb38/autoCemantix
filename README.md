@@ -68,6 +68,8 @@ invalid_word_removed_count -> Number of invalid word found during the solving
 
 We save only the first solving because we remove invalid_words from the model. This fact let statistics becomes false after 1 solving.
 
+You can currently see some statistics in the [project's documentation](https://romb38.github.io/autoCemantix/statistics.html).
+
 ## 🔧 Configuration
 
 Configuration file location : `src/resources/config.ini`
