@@ -10,14 +10,12 @@ def filter_model_locally(model, old_invalid_words, glossary_path, logger):
     or otherwise unwanted words based on the glossary provided in the config.
 
     :param KeyedVectors model: Model to filter
-    :param dict invalid_words: Already found invalid words
+    :param set invalid_words: Already found invalid words
     :param str glossary_path: Path to glossary as defined in README.md
     :param logging.Logger logger: Logger
     :returns: Dictionary containing all invalids words founded
-    :rtype: dict[str]
+    :rtype: set
     """
-
-    # WIP TO WORK HERE
 
     logger.info(f"Loading glossary from {glossary_path}")
     if glossary_path is None:

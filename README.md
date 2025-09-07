@@ -40,16 +40,11 @@ You can also add options to this script :
 
 ## 🧹 Dictionary filtering
 
-To start filtering a new Word2Vec model, follow these steps :
-- Change the `model_path` properties in the [configuration file](#-configuration) to point to your new model
-- Execute the following, it will take a bit of time, but you can follow the filtering inside of logs (default location : `logs/solver.log`)
+To start filtering a new Word2Vec model, you'll need to configure it's path into the [configuration file](#-configuration) (`model_path` field). Then you can choose between these two filtering methods :
 
-```bash
-source .venv/bin/activate
-python3 main.py init &
-```
+### Local filtering
 
-To give you more information, this script applies the following filters :
+Filtering the model locally applies the following filters :
 - Word exists in French dictionary
 - Word have more than 1 letters
 - Word is not a conjugated verb
@@ -58,7 +53,29 @@ To give you more information, this script applies the following filters :
 - Word do not contains non-alphanumeric characters other than "-"
 - Word is not inside of previously tested word (listed in `src/resources/invalid_words.pkl`)
 
-To applies these filter, the script is using this [glossary](http://www.lexique.org/).
+In order to applies these filter, the script is using this [glossary](http://www.lexique.org/).
+
+**Execution :**
+```bash
+  source .venv/bin/activate
+  python3 main.py filter [-n/--ntfy] &
+```
+
+The option `-n` let the user to be notified when the filter is finished using [ntfy configuration](#-ntfy-configuration)
+
+### Filter using Cemantix API
+
+**Caution** : This filter can take a very long time as it's using Cemantix API and some delay. You should use it inside of a screen session
+
+This filter takes every words of the model and send them to Cemantix. If Cemantinx doesn't know the word, the script filter it from the model.
+
+**Execution :**
+```bash
+  source .venv/bin/activate
+  python3 main.py filter (-c/--cemantix) [-n/--ntfy] &
+```
+
+The option `-n` let the user to be notified when the filter is finished using [ntfy configuration](#-ntfy-configuration)
 
 ## 📊 Statistics
 
@@ -76,7 +93,12 @@ invalid_word_removed_count -> Number of invalid word found during the solving
 
 We save only the first solving because we remove invalid_words from the model. This fact let statistics becomes false after 1 solving.
 
-You can currently see some statistics in the [project's documentation](https://romb38.github.io/autoCemantix/statistics.html).
+You can currently see some statistics in the [project's documentation](https://romb38.github.io/autoCemantix/statistics.html). These graphs are generated using this commands :
+
+```bash
+source .venv/bin/activate
+python3 main.py generate-stat-graph # Store graphs inside of the folder defined in configuration
+```
 
 ## 🔧 Configuration
 
