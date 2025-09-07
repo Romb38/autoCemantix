@@ -17,10 +17,10 @@ def main():
 
     subparsers.add_parser("init", help="Initialize the model with local filtering")
 
-    subparsers.add_parser("cemantix-filtering", help="Use Cemantix API to filter model. Use with caution as it can take a long time")
-
-    filtering_parser = subparsers.add_parser("generate-stat-graph", help="Generate statistics graph")
+    filtering_parser = subparsers.add_parser("cemantix-filtering", help="Use Cemantix API to filter model. Use with caution as it can take a long time")
     filtering_parser.add_argument("-n", "--ntfy", action="store_true", help="Notify users using NTFY API when filtering ends. Must have NTFY configured in .env and curl installed")
+
+    subparsers.add_parser("generate-stat-graph", help="Generate statistics graph")
 
 
     solve_parser = subparsers.add_parser("solve", help="Solve Cemantix")
