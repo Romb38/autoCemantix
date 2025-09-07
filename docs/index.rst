@@ -7,4 +7,5 @@
 
    statistics
    run-sh
+   resources
    modules
