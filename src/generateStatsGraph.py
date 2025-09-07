@@ -1,13 +1,3 @@
-"""
-Module to generate statistics graphs based on the file defined in the config.
-
-Generates:
-- invalid_word_removed_count_per_day.png
-- requests_count_per_day.png
-- solving_time_per_day.png
-"""
-
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -16,12 +6,14 @@ import os
 def create_graph_stats(cfg):
     """
     Create three graphs based on statistics file in folder specified by config file. It creates :
+
     - invalid_word_removed_count_per_day.png
     - requests_count_per_day.png
     - solving_time_per_day.png
+    
     If the folder doesn't exists, it will be created.
 
-    :param dict cfg Config file as python dictionary
+    :param dict cfg: Config file as python dictionary
     :returns: None
     """
 
