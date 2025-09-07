@@ -1,3 +1,4 @@
 timestamp,puzzle_number,word,score,solving_time,requests_count,api_delay,invalid_word_removed_count
 2025-09-05T18:04:16.227173,1283,détention,1.0,223.42,329,0.5,7
 2025-09-06T03:11:02.837007,1284,aveugle,1.0,660.19,1005,0.5,16
+2025-09-07T13:54:00.542029,1285,intime,1.0,106.55,164,0.5,0
