@@ -12,7 +12,7 @@ Technical documentation
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: src.initialFiltering
+.. automodule:: src.localFiltering
     :members:
     :undoc-members:
     :show-inheritance:

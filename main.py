@@ -1,7 +1,6 @@
 import argparse
 from src.configLoader import load_config
 from src.CemantixSolver import CemantixSolver
-from src.initialFiltering import filter_model_from_config
 from src.generateStatsGraph import create_graph_stats
 
 def main():
@@ -15,13 +14,11 @@ def main():
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    subparsers.add_parser("init", help="Initialize the model with local filtering")
-
-    filtering_parser = subparsers.add_parser("cemantix-filtering", help="Use Cemantix API to filter model. Use with caution as it can take a long time")
+    filtering_parser = subparsers.add_parser("filter", help="Filter the model. By default, use the local glossary with rules listed in README.md")
+    filtering_parser.add_argument("-c", "--cemantix", action="store_true", help="Use Cemantix API to filter model instead of local rules. Use with caution as it can take a long time")
     filtering_parser.add_argument("-n", "--ntfy", action="store_true", help="Notify users using NTFY API when filtering ends. Must have NTFY configured in .env and curl installed")
 
     subparsers.add_parser("generate-stat-graph", help="Generate statistics graph")
-
 
     solve_parser = subparsers.add_parser("solve", help="Solve Cemantix")
     solve_parser.add_argument("-f", "--filtering", action="store_true", help="Enable filtering before solving")
@@ -31,8 +28,16 @@ def main():
     args = parser.parse_args()
     cfg = load_config(args.config)
 
-    if args.command == "init":
-        filter_model_from_config(cfg)
+    if args.command == "filter":
+        solver = CemantixSolver(cfg)
+        if args.cemantix:
+            solver.cemantixFiltering(
+                ntfy=args.ntfy
+            )
+        else:
+            solver.localFiltering(
+                ntfy=args.ntfy
+            )
     elif args.command == "solve":
         solver = CemantixSolver(cfg)
         result = solver.solve(
@@ -42,11 +47,6 @@ def main():
         )
     elif args.command == "generate-stat-graph":
         create_graph_stats(cfg)
-    elif args.command == "cemantix-filtering":
-        solver = CemantixSolver(cfg)
-        solver.cemantixFiltering(
-            ntfy=args.ntfy
-        )
 
 if __name__ == "__main__":
     main()

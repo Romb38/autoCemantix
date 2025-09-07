@@ -43,6 +43,7 @@ You can also add options to this script :
 To start filtering a new Word2Vec model, follow these steps :
 - Change the `model_path` properties in the [configuration file](#-configuration) to point to your new model
 - Execute the following, it will take a bit of time, but you can follow the filtering inside of logs (default location : `logs/solver.log`)
+
 ```bash
 source .venv/bin/activate
 python3 main.py init &
