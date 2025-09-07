@@ -205,7 +205,7 @@ class CemantixSolver:
         :param str word: The found word (the solution).
         :param float exec_time: Execution time in seconds.
         """
-        msg = f"Mot trouvé: {word} (score : {score}), Requêtes: {self.request_count}, Temps: {exec_time:.2f} sec"
+        msg = f"Word found: {word} (score : {score}), Requests: {self.request_count}, Execution time: {exec_time:.2f} sec"
         self.logger.info("Résultat final → %s", msg)
         token = os.getenv("NTFY_TOKEN")
         subject = os.getenv("NTFY_SUBJECT")
