@@ -92,7 +92,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 
 <div class="viewcode-block" id="CemantixSolver">
 <a class="viewcode-back" href="../../modules.html#src.CemantixSolver.CemantixSolver">[docs]</a>
@@ -282,10 +282,20 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Word found: </span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2"> (score : </span><span class="si">{</span><span class="n">score</span><span class="si">}</span><span class="s2">), Requests: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">request_count</span><span class="si">}</span><span class="s2">, Execution time: </span><span class="si">{</span><span class="n">exec_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> sec&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Résultat final → </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__ntfy</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__ntfy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a notification containing msg using NTFY API</span>
+
+<span class="sd">        :param str msg: Message to send as notification</span>
+<span class="sd">        :returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NTFY_TOKEN&quot;</span><span class="p">)</span>
         <span class="n">subject</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NTFY_SUBJECT&quot;</span><span class="p">)</span>
         <span class="n">ntfy_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NTFY_URL&quot;</span><span class="p">)</span>
-
         <span class="k">if</span>  <span class="n">subject</span> <span class="ow">and</span> <span class="n">ntfy_url</span><span class="p">:</span>
             <span class="c1">#os.system(f&#39;ntfy publish --token {token} {ntfy_url}/{subject} &quot;{msg}&quot;&#39;)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;curl -H &quot;Authorization: Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s1">&quot; -d &quot;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1">&quot; </span><span class="si">{</span><span class="n">ntfy_url</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -319,6 +329,60 @@
         <span class="c1"># Save filtered model</span>
         <span class="n">filtered_model</span><span class="o">.</span><span class="n">save_word2vec_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Filtered model saved to </span><span class="si">%s</span><span class="s2"> with </span><span class="si">%d</span><span class="s2"> words&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_words</span><span class="p">))</span>
+
+<div class="viewcode-block" id="CemantixSolver.cemantixFiltering">
+<a class="viewcode-back" href="../../modules.html#src.CemantixSolver.CemantixSolver.cemantixFiltering">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cemantixFiltering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntfy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filter every invalid words by sending every words to the Cemantix API.</span>
+
+<span class="sd">        :param bool ntfy: (Optional) Send a notification using NTFY .env configuration</span>
+<span class="sd">        :returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">is_in_critical_time_window</span><span class="p">():</span>
+            <span class="c1"># If we are between 23:59 and 00:05, we can&#39;t send requests anymore because of the day changing</span>
+            <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">now</span><span class="o">.</span><span class="n">hour</span> <span class="o">==</span> <span class="mi">23</span> <span class="ow">and</span> <span class="n">now</span><span class="o">.</span><span class="n">minute</span> <span class="o">&gt;=</span> <span class="mi">59</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">now</span><span class="o">.</span><span class="n">hour</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">now</span><span class="o">.</span><span class="n">minute</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading model &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">KeyedVectors</span><span class="o">.</span><span class="n">load_word2vec_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unicode_errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Model loaded&quot;</span><span class="p">)</span>
+
+        <span class="n">day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_puzzle_number</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">day</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">key_to_index</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">is_in_critical_time_window</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">in_critical_window</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Entered critical time window (23:59–00:05). Pausing filtering...&quot;</span><span class="p">)</span>
+                            <span class="n">in_critical_window</span> <span class="o">=</span> <span class="kc">True</span>
+
+                        <span class="k">while</span> <span class="n">is_in_critical_time_window</span><span class="p">():</span>
+                            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Exited critical time window. Updating puzzle day...&quot;</span><span class="p">)</span>
+                        <span class="n">new_day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_puzzle_number</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">new_day</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unable to retrieve puzzle day after critical window.&quot;</span><span class="p">)</span>
+                            <span class="k">return</span> <span class="kc">None</span>
+                        <span class="n">day</span> <span class="o">=</span> <span class="n">new_day</span>
+                        <span class="n">in_critical_window</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__get_score</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">day</span><span class="p">)</span> <span class="c1"># We don&#39;t care about resulting score, we use it only to save invalid words</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api_delay</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__filter_dictionnary</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">newly_added</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daily_invalid_words</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__save_invalid_words</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Persisted </span><span class="si">%d</span><span class="s2"> new invalid words to global dictionary&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">newly_added</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">ntfy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__ntfy</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Filtering ended, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">newly_added</span><span class="p">)</span><span class="si">}</span><span class="s2"> words filtered from dictionary&quot;</span><span class="p">)</span></div>
+
+
 
 <div class="viewcode-block" id="CemantixSolver.solve">
 <a class="viewcode-back" href="../../modules.html#src.CemantixSolver.CemantixSolver.solve">[docs]</a>

@@ -53,8 +53,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__load_invalid_words"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__load_invalid_words()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__log_and_notify"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__log_and_notify()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__mark_invalid"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__mark_invalid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__ntfy"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__ntfy()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__record_stats"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__record_stats()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__save_invalid_words"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__save_invalid_words()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.cemantixFiltering"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.cemantixFiltering()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.solve"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.solve()</span></code></a></li>
 </ul>
 </li>
@@ -185,6 +187,20 @@ to guess the hidden word by querying the Cemantix API for similarity scores.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__ntfy">
+<span class="sig-name descname"><span class="pre">__ntfy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__ntfy" title="Link to this definition"></a></dt>
+<dd><p>Send a notification containing msg using NTFY API</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – Message to send as notification</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__record_stats">
 <span class="sig-name descname"><span class="pre">__record_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">puzzle_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">word</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__record_stats" title="Link to this definition"></a></dt>
 <dd><p>Record solving statistics into a CSV file.</p>
@@ -203,6 +219,20 @@ to guess the hidden word by querying the Cemantix API for similarity scores.</p>
 <dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__save_invalid_words">
 <span class="sig-name descname"><span class="pre">__save_invalid_words</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__save_invalid_words" title="Link to this definition"></a></dt>
 <dd><p>Save the current global invalid word list to the pickle file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.cemantixFiltering">
+<span class="sig-name descname"><span class="pre">cemantixFiltering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ntfy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CemantixSolver.html#CemantixSolver.cemantixFiltering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.cemantixFiltering" title="Link to this definition"></a></dt>
+<dd><p>Filter every invalid words by sending every words to the Cemantix API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ntfy</strong> (<em>bool</em>) – (Optional) Send a notification using NTFY .env configuration</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
