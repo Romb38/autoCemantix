@@ -25,7 +25,7 @@ My script run at home on a server. I want to update the following everyday :
 - `src/resources/invalid_words.pkl` : List of invalid words found using the script
 - Update solver statistics on GitHub everyday (when the fist point is implemented) - Will not be implemented as so
 
-I know that is a configuration of my server, but I want to include this on the repository to let users know how to do it.
+I know that is a configuration of my server, but I want to include this on the repository to let users know how it's done.
 
 ## 📊 Adding statistics - DONE in a6c0279
 

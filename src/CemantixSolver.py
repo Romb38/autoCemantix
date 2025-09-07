@@ -13,8 +13,8 @@ import requests
 import pickle
 from requests.structures import CaseInsensitiveDict
 from gensim.models import KeyedVectors
-import logging
 from src.configLoader import setup_logging
+from src.localFiltering import filter_model_locally
 import os
 import time
 from dotenv import load_dotenv
@@ -56,6 +56,7 @@ class CemantixSolver:
         self.user_agent = config["user_agent"]
         self.content_type = config["content_type"]
         self.max_retries = config["max_retries"]
+        self.glossary = config["glossary"]
 
         self.headers = CaseInsensitiveDict({
             "Content-Type": self.content_type,
@@ -69,8 +70,6 @@ class CemantixSolver:
 
         if not self.stats_file:
             self.logger.info("No stats file configured")
-
-
 
     def __record_stats(self, puzzle_number, word, score, exec_time):
         """
@@ -254,6 +253,34 @@ class CemantixSolver:
         # Save filtered model
         filtered_model.save_word2vec_format(self.model_path, binary=True)
         self.logger.info("Filtered model saved to %s with %d words", self.model_path, len(valid_words))
+
+    def localFiltering(self, ntfy=False):
+        """
+        Filter words using rules implemented in local.
+
+        :param bool ntfy: (Optional) Send a notification using NTFY .env configuration
+        :returns: None
+        """
+
+        self.logger.info("Loading model '%s'", self.model_path)
+        model = KeyedVectors.load_word2vec_format(self.model_path, binary=True, unicode_errors="ignore")
+        self.logger.info("Model loaded")
+
+        self.daily_invalid_words = filter_model_locally(model, self.invalid_words, self.glossary, self.logger)
+
+        if self.daily_invalid_words is None:
+            if ntfy:
+                self.__ntfy(f"An error as occured")
+            return
+
+        self.__filter_dictionnary(model)
+        newly_added = self.daily_invalid_words - self.invalid_words
+        self.invalid_words.update(self.daily_invalid_words)
+        self.__save_invalid_words()
+
+        if ntfy:
+            self.__ntfy(f"Filtering ended, {len(newly_added)} words filtered from dictionary")
+
 
     def cemantixFiltering(self, ntfy=False):
         """

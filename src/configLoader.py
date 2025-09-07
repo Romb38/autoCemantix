@@ -1,7 +1,3 @@
-##
-# @file configLoader.py
-# @brief Module to load configuration and set up logging.
-
 import configparser
 import logging
 import os
