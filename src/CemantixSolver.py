@@ -19,7 +19,7 @@ import os
 import time
 from dotenv import load_dotenv
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class CemantixSolver:
     """
@@ -207,10 +207,20 @@ class CemantixSolver:
         """
         msg = f"Word found: {word} (score : {score}), Requests: {self.request_count}, Execution time: {exec_time:.2f} sec"
         self.logger.info("Résultat final → %s", msg)
+        self.__ntfy(msg)
+        return
+
+    def __ntfy(self, msg):
+        """
+        Send a notification containing msg using NTFY API
+
+        :param str msg: Message to send as notification
+        :returns: None
+        """
+
         token = os.getenv("NTFY_TOKEN")
         subject = os.getenv("NTFY_SUBJECT")
         ntfy_url = os.getenv("NTFY_URL")
-
         if  subject and ntfy_url:
             #os.system(f'ntfy publish --token {token} {ntfy_url}/{subject} "{msg}"')
             os.system(f'curl -H "Authorization: Bearer {token}" -d "{msg}" {ntfy_url}/{subject}')
@@ -244,6 +254,57 @@ class CemantixSolver:
         # Save filtered model
         filtered_model.save_word2vec_format(self.model_path, binary=True)
         self.logger.info("Filtered model saved to %s with %d words", self.model_path, len(valid_words))
+
+    def cemantixFiltering(self, ntfy=False):
+        """
+        Filter every invalid words by sending every words to the Cemantix API.
+
+        :param bool ntfy: (Optional) Send a notification using NTFY .env configuration
+        :returns: None
+        """
+
+        def is_in_critical_time_window():
+            # If we are between 23:59 and 00:05, we can't send requests anymore because of the day changing
+            now = datetime.now()
+            return (now.hour == 23 and now.minute >= 59) or (now.hour == 0 and now.minute <= 5)
+
+        self.logger.info("Loading model '%s'", self.model_path)
+        model = KeyedVectors.load_word2vec_format(self.model_path, binary=True, unicode_errors="ignore")
+        self.logger.info("Model loaded")
+
+        day = self.__get_puzzle_number()
+        if day is None:
+            return None
+
+        for word in model.key_to_index:
+            if is_in_critical_time_window():
+                        if not in_critical_window:
+                            self.logger.warning("Entered critical time window (23:59–00:05). Pausing filtering...")
+                            in_critical_window = True
+
+                        while is_in_critical_time_window():
+                            time.sleep(30)
+
+                        self.logger.info("Exited critical time window. Updating puzzle day...")
+                        new_day = self.__get_puzzle_number()
+                        if new_day is None:
+                            self.logger.error("Unable to retrieve puzzle day after critical window.")
+                            return None
+                        day = new_day
+                        in_critical_window = False
+
+            self.__get_score(word, day) # We don't care about resulting score, we use it only to save invalid words
+            time.sleep(self.api_delay)
+
+        self.__filter_dictionnary(model)
+        newly_added = self.daily_invalid_words - self.invalid_words
+        self.invalid_words.update(self.daily_invalid_words)
+        self.__save_invalid_words()
+        self.logger.info("Persisted %d new invalid words to global dictionary", len(newly_added))
+
+        if ntfy:
+            self.__ntfy(f"Filtering ended, {len(newly_added)} words filtered from dictionary")
+
 
     def solve(self, day=None, filtering=False, save_stats=True, ntfy=False):
         """
