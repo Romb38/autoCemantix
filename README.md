@@ -35,6 +35,7 @@ You can also add options to this script :
 ```
 --stats/-s : Saves statistics inside of the statistics file defined in config
 --filtering/-f : Enable automatic filtering of invalid words found during solving
+--ntfy/-n : Enable notification using NTFY services. A configuration must be made inside of .env (c.f README.md - Ntfy Configuration)
 ```
 
 ## 🧹 Dictionary filtering
