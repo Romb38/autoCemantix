@@ -207,8 +207,10 @@ class CemantixSolver:
         token = os.getenv("NTFY_TOKEN")
         subject = os.getenv("NTFY_SUBJECT")
         ntfy_url = os.getenv("NTFY_URL")
+
         if  subject and ntfy_url:
-            os.system(f'ntfy publish --token {token} {ntfy_url}/{subject} "{msg}"')
+            #os.system(f'ntfy publish --token {token} {ntfy_url}/{subject} "{msg}"')
+            os.system(f'curl -H "Authorization: Bearer {token}" -d "{msg}" {ntfy_url}/{subject}')
 
     def __filter_dictionnary(self, model):
         """
