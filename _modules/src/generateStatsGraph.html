@@ -70,17 +70,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.generateStatsGraph</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Module to generate statistics graphs based on the file defined in the config.</span>
-
-<span class="sd">Generates:</span>
-<span class="sd">- invalid_word_removed_count_per_day.png</span>
-<span class="sd">- requests_count_per_day.png</span>
-<span class="sd">- solving_time_per_day.png</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.dates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mdates</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -90,12 +80,14 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">create_graph_stats</span><span class="p">(</span><span class="n">cfg</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create three graphs based on statistics file in folder specified by config file. It creates :</span>
+
 <span class="sd">    - invalid_word_removed_count_per_day.png</span>
 <span class="sd">    - requests_count_per_day.png</span>
 <span class="sd">    - solving_time_per_day.png</span>
+<span class="sd">    </span>
 <span class="sd">    If the folder doesn&#39;t exists, it will be created.</span>
 
-<span class="sd">    :param dict cfg Config file as python dictionary</span>
+<span class="sd">    :param dict cfg: Config file as python dictionary</span>
 <span class="sd">    :returns: None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
