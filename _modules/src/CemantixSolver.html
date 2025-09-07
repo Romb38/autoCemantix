@@ -115,7 +115,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NTFY_URL&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NTFY_SUBJECT&quot;</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No NTFY config found&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No NTFY config found&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words_file</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;invalid_dict_path&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">invalid_words</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__load_invalid_words</span><span class="p">()</span>
@@ -141,8 +141,10 @@
         <span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">similar_cache</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stats_file</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;stats_file&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No statistics file given, statistics will not be saved&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No stats file configured&quot;</span><span class="p">)</span>
+
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__record_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">puzzle_number</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">):</span>
@@ -154,6 +156,7 @@
 <span class="sd">        :param float exec_time: Total time taken to solve the puzzle.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No statistics file setup, statistics will not be saved&quot;</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="n">stats_row</span> <span class="o">=</span> <span class="p">{</span>
@@ -286,6 +289,8 @@
         <span class="k">if</span>  <span class="n">subject</span> <span class="ow">and</span> <span class="n">ntfy_url</span><span class="p">:</span>
             <span class="c1">#os.system(f&#39;ntfy publish --token {token} {ntfy_url}/{subject} &quot;{msg}&quot;&#39;)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;curl -H &quot;Authorization: Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s1">&quot; -d &quot;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1">&quot; </span><span class="si">{</span><span class="n">ntfy_url</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No NTFY config found, set it up inside of .env file&quot;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__filter_dictionnary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -317,13 +322,14 @@
 
 <div class="viewcode-block" id="CemantixSolver.solve">
 <a class="viewcode-back" href="../../modules.html#src.CemantixSolver.CemantixSolver.solve">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filtering</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filtering</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ntfy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Start solving the Cemantix puzzle using beam search and a Word2Vec model.</span>
 
 <span class="sd">        :param int day: (Optional) Puzzle number to solve. If None, the current day&#39;s puzzle will be used.</span>
 <span class="sd">        :param bool filtering: (Optional) Enable dictionary filtering by removing invalid words found during solving</span>
-<span class="sd">        :param  bool save_stats: (Optional) Save statistics in a statistics file defined in config</span>
+<span class="sd">        :param bool save_stats: (Optional) Save statistics in a statistics file defined in config</span>
+<span class="sd">        :param bool ntfy: (Optional) Send a notification using NTFY .env configuration</span>
 <span class="sd">        :returns: A tuple (best_word, best_score) or None if no solution was found.</span>
 <span class="sd">        :rtype: tuple or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -418,7 +424,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Solving ended&quot;</span><span class="p">)</span>
 
         <span class="n">exec_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__log_and_notify</span><span class="p">(</span><span class="n">best_word</span><span class="p">,</span> <span class="n">best_score</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ntfy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__log_and_notify</span><span class="p">(</span><span class="n">best_word</span><span class="p">,</span> <span class="n">best_score</span><span class="p">,</span> <span class="n">exec_time</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">filtering</span> <span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__filter_dictionnary</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
