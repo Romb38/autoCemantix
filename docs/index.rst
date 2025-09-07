@@ -6,4 +6,5 @@
    :caption: Documentation
 
    statistics
+   run-sh
    modules
