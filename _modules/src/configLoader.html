@@ -41,9 +41,6 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../statistics.html">Statistics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../run-sh.html">run.sh file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../resources.html">Resources folder</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">Technical documentation</a></li>
 </ul>
 
@@ -104,11 +101,8 @@
 
     <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;start_words&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">w</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_words&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)],</span>
-        <span class="s2">&quot;beam_size&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;beam_size&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
-        <span class="s2">&quot;topn&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;topn&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
         <span class="s2">&quot;api_delay&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;api_delay&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
         <span class="s2">&quot;model_path&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model_path&quot;</span><span class="p">,</span> <span class="s2">&quot;frWac.bin&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;invalid_dict_path&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;invalid_dict_path&quot;</span><span class="p">,</span> <span class="s2">&quot;invalid_words.pkl&quot;</span><span class="p">),</span>
         <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;schema&quot;</span><span class="p">,</span> <span class="s2">&quot;https&quot;</span><span class="p">),</span>
         <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="s2">&quot;cemantix.certitudes.org&quot;</span><span class="p">),</span>
         <span class="s2">&quot;user_agent&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_agent&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
@@ -116,9 +110,6 @@
         <span class="s2">&quot;max_retries&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;max_retries&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
         <span class="s2">&quot;log_level&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;log_level&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
         <span class="s2">&quot;log_file&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;log_file&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
-        <span class="s2">&quot;glossary&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;glossary_path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="s2">&quot;stats_file&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;statistics_path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="s2">&quot;graphs_saving_folder&quot;</span><span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;graphs_saving_folder&quot;</span><span class="p">,</span> <span class="s2">&quot;doc/img&quot;</span><span class="p">)</span>
     <span class="p">}</span>
 
     <span class="k">return</span> <span class="n">config</span></div>

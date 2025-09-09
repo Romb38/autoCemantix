@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Resources folder" href="resources.html" /> 
+    <link rel="prev" title="🛠️ Installation" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,29 +43,17 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="statistics.html">Statistics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="run-sh.html">run.sh file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="resources.html">Resources folder</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Technical documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver"><code class="docutils literal notranslate"><span class="pre">CemantixSolver</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__filter_dictionnary"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__filter_dictionnary()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__get_puzzle_number"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__get_puzzle_number()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__get_score"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__get_score()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__load_invalid_words"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__load_invalid_words()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__log_and_notify"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__log_and_notify()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__mark_invalid"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__mark_invalid()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__ntfy"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__ntfy()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__record_stats"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__record_stats()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__save_invalid_words"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__save_invalid_words()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.cemantixFiltering"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.cemantixFiltering()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.localFiltering"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.localFiltering()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.solve"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.solve()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#src.configLoader.load_config"><code class="docutils literal notranslate"><span class="pre">load_config()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#src.configLoader.setup_logging"><code class="docutils literal notranslate"><span class="pre">setup_logging()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#src.localFiltering.filter_model_locally"><code class="docutils literal notranslate"><span class="pre">filter_model_locally()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#src.generateStatsGraph.create_graph_stats"><code class="docutils literal notranslate"><span class="pre">create_graph_stats()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -104,18 +92,6 @@
 <p>This solver uses a Word2Vec model and a beam search strategy
 to guess the hidden word by querying the Cemantix API for similarity scores.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__filter_dictionnary">
-<span class="sig-name descname"><span class="pre">__filter_dictionnary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__filter_dictionnary" title="Link to this definition"></a></dt>
-<dd><p>Filter the Word2Vec model by removing both global and session invalid words.</p>
-<p>This also saves the merged invalid word list back to disk to allow future re-filtering.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>model</strong> (<em>KeyedVectors</em>) – The original Word2Vec model to filter.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__get_puzzle_number">
 <span class="sig-name descname"><span class="pre">__get_puzzle_number</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__get_puzzle_number" title="Link to this definition"></a></dt>
 <dd><p>Fetch the current day’s puzzle number from the Cemantix website.</p>
@@ -150,20 +126,6 @@ to guess the hidden word by querying the Cemantix API for similarity scores.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__load_invalid_words">
-<span class="sig-name descname"><span class="pre">__load_invalid_words</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__load_invalid_words" title="Link to this definition"></a></dt>
-<dd><p>Load the set of invalid words from the pickle file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A set of invalid words if the file exists, otherwise an empty set.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>set</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__log_and_notify">
 <span class="sig-name descname"><span class="pre">__log_and_notify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">word</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__log_and_notify" title="Link to this definition"></a></dt>
 <dd><p>Send a notification when the solution is found.</p>
@@ -173,17 +135,6 @@ to guess the hidden word by querying the Cemantix API for similarity scores.</p>
 <li><p><strong>word</strong> (<em>str</em>) – The found word (the solution).</p></li>
 <li><p><strong>exec_time</strong> (<em>float</em>) – Execution time in seconds.</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__mark_invalid">
-<span class="sig-name descname"><span class="pre">__mark_invalid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">word</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__mark_invalid" title="Link to this definition"></a></dt>
-<dd><p>Mark a word as invalid for the current solving session only.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>word</strong> (<em>str</em>) – The word to mark as invalid.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -203,64 +154,14 @@ to guess the hidden word by querying the Cemantix API for similarity scores.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__record_stats">
-<span class="sig-name descname"><span class="pre">__record_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">puzzle_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">word</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__record_stats" title="Link to this definition"></a></dt>
-<dd><p>Record solving statistics into a CSV file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>puzzle_number</strong> (<em>int</em>) – The puzzle number solved.</p></li>
-<li><p><strong>word</strong> (<em>str</em>) – The word that solved the puzzle.</p></li>
-<li><p><strong>exec_time</strong> (<em>float</em>) – Total time taken to solve the puzzle.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__save_invalid_words">
-<span class="sig-name descname"><span class="pre">__save_invalid_words</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__save_invalid_words" title="Link to this definition"></a></dt>
-<dd><p>Save the current global invalid word list to the pickle file.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.cemantixFiltering">
-<span class="sig-name descname"><span class="pre">cemantixFiltering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ntfy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CemantixSolver.html#CemantixSolver.cemantixFiltering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.cemantixFiltering" title="Link to this definition"></a></dt>
-<dd><p>Filter every invalid words by sending every words to the Cemantix API.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ntfy</strong> (<em>bool</em>) – (Optional) Send a notification using NTFY .env configuration</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.localFiltering">
-<span class="sig-name descname"><span class="pre">localFiltering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ntfy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CemantixSolver.html#CemantixSolver.localFiltering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.localFiltering" title="Link to this definition"></a></dt>
-<dd><p>Filter words using rules implemented in local.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ntfy</strong> (<em>bool</em>) – (Optional) Send a notification using NTFY .env configuration</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtering</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntfy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CemantixSolver.html#CemantixSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.solve" title="Link to this definition"></a></dt>
-<dd><p>Start solving the Cemantix puzzle using beam search and a Word2Vec model.</p>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntfy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CemantixSolver.html#CemantixSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.solve" title="Link to this definition"></a></dt>
+<dd><p>Solving the Cemantix puzzle using a local strategy. The goal is to save the score of the 4 starting words and
+check inside of the model if there is words that matches similarity scores</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>day</strong> (<em>int</em>) – (Optional) Puzzle number to solve. If None, the current day’s puzzle will be used.</p></li>
-<li><p><strong>filtering</strong> (<em>bool</em>) – (Optional) Enable dictionary filtering by removing invalid words found during solving</p></li>
-<li><p><strong>save_stats</strong> (<em>bool</em>) – (Optional) Save statistics in a statistics file defined in config</p></li>
 <li><p><strong>ntfy</strong> (<em>bool</em>) – (Optional) Send a notification using NTFY .env configuration</p></li>
 </ul>
 </dd>
@@ -312,56 +213,13 @@ to guess the hidden word by querying the Cemantix API for similarity scores.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function" id="module-src.localFiltering">
-<dt class="sig sig-object py" id="src.localFiltering.filter_model_locally">
-<span class="sig-name descname"><span class="pre">filter_model_locally</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_invalid_words</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">glossary_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/localFiltering.html#filter_model_locally"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.localFiltering.filter_model_locally" title="Link to this definition"></a></dt>
-<dd><p>Filter the Word2Vec model by removing invalid, plural, conjugated,
-or otherwise unwanted words based on the glossary provided in the config.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>KeyedVectors</em>) – Model to filter</p></li>
-<li><p><strong>invalid_words</strong> (<em>set</em>) – Already found invalid words</p></li>
-<li><p><strong>glossary_path</strong> (<em>str</em>) – Path to glossary as defined in README.md</p></li>
-<li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionary containing all invalids words founded</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>set</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.generateStatsGraph.create_graph_stats">
-<span class="sig-name descname"><span class="pre">create_graph_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/generateStatsGraph.html#create_graph_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.generateStatsGraph.create_graph_stats" title="Link to this definition"></a></dt>
-<dd><p>Create three graphs based on statistics file in folder specified by config file. It creates :</p>
-<ul class="simple">
-<li><p>invalid_word_removed_count_per_day.png</p></li>
-<li><p>requests_count_per_day.png</p></li>
-<li><p>solving_time_per_day.png</p></li>
-</ul>
-<p>If the folder doesn’t exists, it will be created.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cfg</strong> (<em>dict</em>) – Config file as python dictionary</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="resources.html" class="btn btn-neutral float-left" title="Resources folder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="🛠️ Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
