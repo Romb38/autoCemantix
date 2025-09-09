@@ -2,7 +2,18 @@
 
 You can find here things that I want to add to my solver :
 
-## ❓ Using randomness on solver
+## 📈 New way to solve Cemantix
+
+The goal is currently to update Cemantix solver to use a faster method.
+- Send starting words to the API and getting their score
+- Search locally for words with the same score in our models
+- Send these words to the API and check if it's the Solution
+
+I didn't made this solution earlier because I didn't have the right model (with correct score)
+
+Some testing made locally showed that instead of 3/4min of solving, we get 5sec of solving
+
+## ❓ Using randomness on solver - ABORTED
 
 After discussion of the project with some friends, they suggested me to use randomness at the beginning of the script to get a bigger starting point and converge more efficiently. It will be tested when some statistics will be saved.
 

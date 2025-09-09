@@ -1,25 +1,15 @@
-##
-# @file CemantixSolver.py
-# @brief Contains the CemantixSolver class to solve the Cemantix word puzzle game.
-#
-# This module implements an automatic solver using a Word2Vec model and a beam search
-# strategy to guess the hidden word by interacting with the Cemantix API.
-
 import logging
 import time
 import re
-import heapq
 import requests
 import pickle
 from requests.structures import CaseInsensitiveDict
 from gensim.models import KeyedVectors
 from src.configLoader import setup_logging
-from src.localFiltering import filter_model_locally
 import os
 import time
 from dotenv import load_dotenv
 import csv
-from datetime import datetime, timedelta
 
 class CemantixSolver:
     """
@@ -42,13 +32,7 @@ class CemantixSolver:
         if not(os.getenv("NTFY_URL") and os.getenv("NTFY_SUBJECT")):
             self.logger.info("No NTFY config found")
 
-        self.invalid_words_file = config["invalid_dict_path"]
-        self.invalid_words = self.__load_invalid_words()
-        self.daily_invalid_words = set()  # Temporary invalid words for this solving session
-
         self.start_words = config["start_words"]
-        self.beam_size = config["beam_size"]
-        self.topn = config["topn"]
         self.api_delay = config["api_delay"]
         self.model_path = config["model_path"]
         self.schema = config["schema"]
@@ -56,7 +40,6 @@ class CemantixSolver:
         self.user_agent = config["user_agent"]
         self.content_type = config["content_type"]
         self.max_retries = config["max_retries"]
-        self.glossary = config["glossary"]
 
         self.headers = CaseInsensitiveDict({
             "Content-Type": self.content_type,
@@ -66,91 +49,7 @@ class CemantixSolver:
             "User-Agent": self.user_agent
         })
         self.similar_cache = {}
-        self.stats_file = config["stats_file"]
 
-        if not self.stats_file:
-            self.logger.info("No stats file configured")
-
-    def __record_stats(self, puzzle_number, word, score, exec_time):
-        """
-        Record solving statistics into a CSV file.
-
-        :param int puzzle_number: The puzzle number solved.
-        :param str word: The word that solved the puzzle.
-        :param float exec_time: Total time taken to solve the puzzle.
-        """
-        if not self.stats_file:
-            self.logger.error("No statistics file setup, statistics will not be saved")
-            return
-
-        stats_row = {
-            "timestamp": datetime.now().isoformat(),
-            "puzzle_number": puzzle_number,
-            "word": word,
-            "score": score,
-            "solving_time": round(exec_time, 2),
-            "requests_count": self.request_count,
-            "api_delay": self.api_delay,
-            "invalid_word_removed_count": len(self.daily_invalid_words)
-        }
-
-        file_exists = os.path.isfile(self.stats_file)
-        already_logged = False
-
-        if file_exists:
-            try:
-                with open(self.stats_file, newline='', encoding='utf-8') as csvfile:
-                    reader = csv.DictReader(csvfile)
-                    already_logged = any(row.get('puzzle_number') == str(puzzle_number) for row in reader)
-            except Exception as e:
-                self.logger.warning("Failed to read stats file: %s", e)
-
-        if already_logged:
-            self.logger.info("Puzzle #%d already logged in stats file → skipping", puzzle_number)
-            return
-
-        try:
-            with open(self.stats_file, 'a', newline='', encoding='utf-8') as csvfile:
-                fieldnames = list(stats_row.keys())
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
-                if not file_exists:
-                    self.logger.info("Stats file doesn't exist — creating it with headers.")
-                    writer.writeheader()
-
-                writer.writerow(stats_row)
-
-            self.logger.info("Statistics saved for puzzle #%d: %s", puzzle_number, stats_row)
-        except Exception as e:
-            self.logger.error("Failed to write statistics: %s", e)
-
-    def __load_invalid_words(self):
-        """
-        Load the set of invalid words from the pickle file.
-
-        :returns: A set of invalid words if the file exists, otherwise an empty set.
-        :rtype: set
-        """
-        try:
-            with open(self.invalid_words_file, "rb") as f:
-                return pickle.load(f)
-        except (FileNotFoundError, EOFError):
-            return set()
-
-    def __save_invalid_words(self):
-        """
-        Save the current global invalid word list to the pickle file.
-        """
-        with open(self.invalid_words_file, "wb") as f:
-            pickle.dump(self.invalid_words, f)
-
-    def __mark_invalid(self, word):
-        """
-        Mark a word as invalid for the current solving session only.
-
-        :param str word: The word to mark as invalid.
-        """
-        self.daily_invalid_words.add(word)
 
     def __get_puzzle_number(self):
         """
@@ -189,7 +88,6 @@ class CemantixSolver:
                     return None
                 if 'e' in resp_json:
                     self.logger.warning("Word '%s' error: %s", word, resp_json['e'])
-                    self.__mark_invalid(word)
                     return None
                 return resp_json['s']
             except Exception as e:
@@ -226,125 +124,18 @@ class CemantixSolver:
         else :
             self.logger.error("No NTFY config found, set it up inside of .env file")
 
-    def __filter_dictionnary(self, model):
+
+    def solve(self, day=None, ntfy=False):
         """
-        Filter the Word2Vec model by removing both global and session invalid words.
-
-        This also saves the merged invalid word list back to disk to allow future re-filtering.
-
-        :param KeyedVectors model: The original Word2Vec model to filter.
-        """
-        self.logger.info("Filtering model using invalid words")
-
-        # Combine all invalid words (persistent + session)
-        all_invalid = self.invalid_words.union(self.daily_invalid_words)
-
-        # Save the updated invalid word set to disk for future use
-        with open(self.invalid_words_file, "wb") as f:
-            pickle.dump(all_invalid, f)
-        self.logger.info("Saved %d invalid words to %s", len(all_invalid), self.invalid_words_file)
-
-        # Filter model
-        valid_words = [word for word in model.key_to_index if word not in self.daily_invalid_words]
-        valid_vectors = [model[word] for word in valid_words]
-        filtered_model = KeyedVectors(vector_size=model.vector_size)
-        filtered_model.add_vectors(valid_words, valid_vectors)
-
-        # Save filtered model
-        filtered_model.save_word2vec_format(self.model_path, binary=True)
-        self.logger.info("Filtered model saved to %s with %d words", self.model_path, len(valid_words))
-
-    def localFiltering(self, ntfy=False):
-        """
-        Filter words using rules implemented in local.
-
-        :param bool ntfy: (Optional) Send a notification using NTFY .env configuration
-        :returns: None
-        """
-
-        self.logger.info("Loading model '%s'", self.model_path)
-        model = KeyedVectors.load_word2vec_format(self.model_path, binary=True, unicode_errors="ignore")
-        self.logger.info("Model loaded")
-
-        self.daily_invalid_words = filter_model_locally(model, self.invalid_words, self.glossary, self.logger)
-
-        if self.daily_invalid_words is None:
-            if ntfy:
-                self.__ntfy(f"An error as occured")
-            return
-
-        self.__filter_dictionnary(model)
-        newly_added = self.daily_invalid_words - self.invalid_words
-        self.invalid_words.update(self.daily_invalid_words)
-        self.__save_invalid_words()
-
-        if ntfy:
-            self.__ntfy(f"Filtering ended, {len(newly_added)} words filtered from dictionary")
-
-
-    def cemantixFiltering(self, ntfy=False):
-        """
-        Filter every invalid words by sending every words to the Cemantix API.
-
-        :param bool ntfy: (Optional) Send a notification using NTFY .env configuration
-        :returns: None
-        """
-
-        def is_in_critical_time_window():
-            # If we are between 23:59 and 00:05, we can't send requests anymore because of the day changing
-            now = datetime.now()
-            return (now.hour == 23 and now.minute >= 59) or (now.hour == 0 and now.minute <= 5)
-
-        self.logger.info("Loading model '%s'", self.model_path)
-        model = KeyedVectors.load_word2vec_format(self.model_path, binary=True, unicode_errors="ignore")
-        self.logger.info("Model loaded")
-
-        day = self.__get_puzzle_number()
-        if day is None:
-            return None
-
-        for word in model.key_to_index:
-            if is_in_critical_time_window():
-                        if not in_critical_window:
-                            self.logger.warning("Entered critical time window (23:59–00:05). Pausing filtering...")
-                            in_critical_window = True
-
-                        while is_in_critical_time_window():
-                            time.sleep(30)
-
-                        self.logger.info("Exited critical time window. Updating puzzle day...")
-                        new_day = self.__get_puzzle_number()
-                        if new_day is None:
-                            self.logger.error("Unable to retrieve puzzle day after critical window.")
-                            return None
-                        day = new_day
-                        in_critical_window = False
-
-            self.__get_score(word, day) # We don't care about resulting score, we use it only to save invalid words
-            time.sleep(self.api_delay)
-
-        self.__filter_dictionnary(model)
-        newly_added = self.daily_invalid_words - self.invalid_words
-        self.invalid_words.update(self.daily_invalid_words)
-        self.__save_invalid_words()
-        self.logger.info("Persisted %d new invalid words to global dictionary", len(newly_added))
-
-        if ntfy:
-            self.__ntfy(f"Filtering ended, {len(newly_added)} words filtered from dictionary")
-
-
-    def solve(self, day=None, filtering=False, save_stats=True, ntfy=False):
-        """
-        Start solving the Cemantix puzzle using beam search and a Word2Vec model.
+        Solving the Cemantix puzzle using a local strategy. The goal is to save the score of the 4 starting words and
+        check inside of the model if there is words that matches similarity scores
 
         :param int day: (Optional) Puzzle number to solve. If None, the current day's puzzle will be used.
-        :param bool filtering: (Optional) Enable dictionary filtering by removing invalid words found during solving
-        :param bool save_stats: (Optional) Save statistics in a statistics file defined in config
         :param bool ntfy: (Optional) Send a notification using NTFY .env configuration
         :returns: A tuple (best_word, best_score) or None if no solution was found.
         :rtype: tuple or None
         """
-        self.logger.info("Solver started")
+        self.logger.info("Local solver started")
         start_time = time.time()
         self.request_count = 0
 
@@ -352,101 +143,56 @@ class CemantixSolver:
         model = KeyedVectors.load_word2vec_format(self.model_path, binary=True, unicode_errors="ignore")
         self.logger.info("Model loaded")
 
+        word_found = None
+        best_score = 0.0
+        epsilon = 0.01
+
         if day is None:
             day = self.__get_puzzle_number()
             if day is None:
                 return None
 
-        tested = set()
-        beam = []
-
-        # Initial guesses
+        startings_score = {}
         for w in self.start_words:
-            if w in self.invalid_words or w in self.daily_invalid_words:
-                continue
             self.request_count += 1
             score = self.__get_score(w, day)
             if score is not None:
-                tested.add(w)
-                heapq.heappush(beam, (-score, w))
-                self.logger.info("Initial: %s → %.4f", w, score)
+                if score == 1.0:
+                    self.logger.info("Solution found: %s → %.4f", w, 1.0)
+                    word_found = w
+                    break
+                startings_score[w] = score
+        self.logger.info(f"Starting scores are : {startings_score}")
 
-        if not beam:
-            self.logger.error("No valid starting words")
-            return None
+        if not word_found:
+            for candidate in model.key_to_index:
+                match = True
+                for start_word, target_score in startings_score.items():
+                    sim = model.similarity(start_word,candidate)
+                    if abs(sim - target_score) > epsilon:
+                        match = False
+                        break
 
-        best_score, best_word = -beam[0][0], beam[0][1]
-
-        solution_found = False
-
-        while not solution_found and best_score < 1.0:
-            new_candidates = []
-
-            for _ in range(min(self.beam_size, len(beam))):
-                _, word = heapq.heappop(beam)
-                if word not in model:
-                    continue
-
-                if word in self.similar_cache:
-                    neighbors = self.similar_cache[word]
-                else:
-                    neighbors = model.most_similar(word, topn=self.topn)
-                    self.similar_cache[word] = neighbors
-
-                for neigh, _ in neighbors:
-                    if neigh in tested or neigh in self.invalid_words or neigh in self.daily_invalid_words:
-                        continue
+                if match:
+                    self.logger.info(f"Candidate '{candidate}' matches similarity profile. Checking score...")
                     self.request_count += 1
-                    score = self.__get_score(neigh, day)
+                    score = self.__get_score(candidate, day)
+
                     if score is None:
                         continue
-                    tested.add(neigh)
-                    heapq.heappush(new_candidates, (-score, neigh))
 
-                    if score > best_score:
-                        best_score, best_word = score, neigh
-                        self.logger.info("New best: %s → %.4f", neigh, score)
-                        if best_score == 1.0:
-                            self.logger.info("Solution found: %s → %.4f", best_word, best_score)
-                            solution_found = True
-                            break
+                    if score == 1.0:
+                        self.logger.info("Solution found: %s → %.4f", candidate, 1.0)
+                        word_found = candidate
+                        break
 
                     time.sleep(self.api_delay)
 
-                if solution_found:
-                    break
-
-            if solution_found:
-                break
-
-            if not new_candidates:
-                self.logger.warning("No new candidates found, stopping.")
-                break
-
-            for item in new_candidates:
-                heapq.heappush(beam, item)
-
-            beam = heapq.nsmallest(self.beam_size, beam)
-
-            if not new_candidates:
-                self.logger.warning("No new candidates found, stopping.")
-                break
-
-        self.logger.info("Solving ended")
-
         exec_time = time.time() - start_time
+        if word_found:
+            best_score = 1.0
 
         if ntfy:
-            self.__log_and_notify(best_word, best_score, exec_time)
+            self.__log_and_notify(word_found, best_score, exec_time)
 
-        if filtering :
-            self.__filter_dictionnary(model)
-            newly_added = self.daily_invalid_words - self.invalid_words
-            self.invalid_words.update(self.daily_invalid_words)
-            self.__save_invalid_words()
-            self.logger.info("Persisted %d new invalid words to global dictionary", len(newly_added))
-
-        if save_stats:
-            self.__record_stats(day, best_word, best_score, exec_time)
-
-        return best_word, best_score
+        return word_found, best_score

@@ -28,11 +28,8 @@ def load_config(filename="src/resources/config.ini"):
 
     config = {
         "start_words": [w.strip() for w in cfg.get("start_words", "").split(",")],
-        "beam_size": cfg.getint("beam_size", 5),
-        "topn": cfg.getint("topn", 20),
         "api_delay": cfg.getfloat("api_delay", 1.0),
         "model_path": cfg.get("model_path", "frWac.bin"),
-        "invalid_dict_path": cfg.get("invalid_dict_path", "invalid_words.pkl"),
         "schema": cfg.get("schema", "https"),
         "url": cfg.get("url", "cemantix.certitudes.org"),
         "user_agent": cfg.get("user_agent", ""),
@@ -40,9 +37,6 @@ def load_config(filename="src/resources/config.ini"):
         "max_retries": cfg.getint("max_retries", 3),
         "log_level": cfg.get("log_level", "INFO").upper(),
         "log_file": cfg.get("log_file", "").strip(),
-        "glossary": cfg.get("glossary_path", None),
-        "stats_file": cfg.get("statistics_path", None),
-        "graphs_saving_folder": cfg.get("graphs_saving_folder", "doc/img")
     }
 
     return config

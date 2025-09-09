@@ -5,7 +5,5 @@
    :maxdepth: 2
    :caption: Documentation
 
-   statistics
-   run-sh
-   resources
+
    modules
