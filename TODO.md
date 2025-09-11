@@ -2,7 +2,7 @@
 
 You can find here things that I want to add to my solver :
 
-## 📈 New way to solve Cemantix
+## 📈 New way to solve Cemantix - DONE in b8d5798
 
 The goal is currently to update Cemantix solver to use a faster method.
 - Send starting words to the API and getting their score

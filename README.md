@@ -10,6 +10,7 @@
 </p>
 
 This project aims to automatically solve the [Cemantix puzzle](https://cemantix.certitudes.org/) as quickly and efficiently as possible.
+
 ## 🛠️ Installation
 
 ```bash
@@ -21,17 +22,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-You'll also need the right model : https://embeddings.net/embeddings/frWac_no_postag_phrase_500_cbow_cut10.bin (~2Go)
-
-```bash
-# On project root
-
-curl https://embeddings.net/embeddings/frWac_no_postag_phrase_500_cbow_cut10.bin -o src/resources/frWac.bin
-```
-
 ## 🚀 Solver execution
 
-Without configuration, the solver use default dictionary, filtered by `initialFiltering.py`
+Without configuration, the solver use default dictionary, same as Cemantix dictionary.
 
 ```bash
 source .venv/bin/activate
@@ -42,7 +35,6 @@ You can also add options to this script :
 ```
 --ntfy/-n : Enable notification using NTFY services. A configuration must be made inside of .env (c.f README.md - Ntfy Configuration)
 ```
-
 
 ## 🔧 Configuration
 
@@ -71,4 +63,4 @@ This project use the following resources :
 
 - Cemantix dictionary (from Jean-Philippe Fauconnier): https://fauconnier.github.io/#data
 
-I've used [this model](https://embeddings.net/embeddings/frWac_no_postag_phrase_500_cbow_cut10.bin) (bin (2Gb) cbow 500 10 14da)
+I've used [this model](https://embeddings.net/embeddings/frWac_no_postag_phrase_500_cbow_cut10.bin) (bin (2Gb) cbow 500 10 14da). It has been filtered to be the same as Cemantix dictionary.
