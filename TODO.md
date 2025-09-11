@@ -2,6 +2,11 @@
 
 You can find here things that I want to add to my solver :
 
+## 🆙 My personnal Cemantix
+
+Now that I have a solver, why do I not redo the Cemantix game in my way ! I will work on the solver when some idea will pop out of my mind.
+
+
 ## 📈 New way to solve Cemantix - DONE in b8d5798
 
 The goal is currently to update Cemantix solver to use a faster method.
