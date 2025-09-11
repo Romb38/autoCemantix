@@ -91,16 +91,10 @@ python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </
 pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
 </pre></div>
 </div>
-<p>You’ll also need the right model : https://embeddings.net/embeddings/frWac_no_postag_phrase_500_cbow_cut10.bin (~2Go)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># On project root</span>
-
-curl<span class="w"> </span>https://embeddings.net/embeddings/frWac_no_postag_phrase_500_cbow_cut10.bin<span class="w"> </span>-o<span class="w"> </span>src/resources/frWac.bin
-</pre></div>
-</div>
 </section>
 <section id="solver-execution">
 <h1>🚀 Solver execution<a class="headerlink" href="#solver-execution" title="Link to this heading"></a></h1>
-<p>Without configuration, the solver use default dictionary, filtered by <code class="docutils literal notranslate"><span class="pre">initialFiltering.py</span></code></p>
+<p>Without configuration, the solver use default dictionary, same as Cemantix dictionary.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
 python3<span class="w"> </span>main.py<span class="w"> </span>solve
 </pre></div>
@@ -134,7 +128,7 @@ python3<span class="w"> </span>main.py<span class="w"> </span>solve
 <ul class="simple">
 <li><p>Cemantix dictionary (from Jean-Philippe Fauconnier): https://fauconnier.github.io/#data</p></li>
 </ul>
-<p>I’ve used <a class="reference external" href="https://embeddings.net/embeddings/frWac_no_postag_phrase_500_cbow_cut10.bin">this model</a> (bin (2Gb) cbow 500 10 14da)</p>
+<p>I’ve used <a class="reference external" href="https://embeddings.net/embeddings/frWac_no_postag_phrase_500_cbow_cut10.bin">this model</a> (bin (2Gb) cbow 500 10 14da). It has been filtered to be the same as Cemantix dictionary.</p>
 </section>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>

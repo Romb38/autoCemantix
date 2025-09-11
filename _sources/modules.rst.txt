@@ -11,10 +11,3 @@ Technical documentation
     :members:
     :undoc-members:
     :show-inheritance:
-
-.. automodule:: src.localFiltering
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. autofunction:: src.generateStatsGraph.create_graph_stats
