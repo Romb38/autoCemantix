@@ -53,7 +53,10 @@ class CemantixSolver:
 
         self.logger.info("Loading model '%s'", self.model_path)
         self.model = KeyedVectors.load_word2vec_format(self.model_path, binary=True, unicode_errors="ignore")
-        self.logger.info("Model loaded")
+
+        self.model.fill_norms(force=True)
+        self.normalized_vectors = self.model.get_normed_vectors()
+        self.logger.info("Model loaded with normalized vectors.")
 
     def __get_puzzle_number(self):
         """
@@ -185,18 +188,15 @@ class CemantixSolver:
         start_scores = np.array(list(startings_score.values()))
 
         # 2.2 Getting model vectors
-        all_vectors = self.model.vectors
+        all_vectors = self.normalized_vectors
         all_words = self.model.index_to_key
 
-        # Normalisation
-        start_norms = np.linalg.norm(start_vectors, axis=1)
-        all_norms = np.linalg.norm(all_vectors, axis=1)
+        # 2.3 Normalise starting words vectors
+        start_vectors = np.array([self.model.get_vector(w) for w in startings_score])
+        start_vectors = start_vectors / np.linalg.norm(start_vectors, axis=1, keepdims=True)
 
-        # 2.3 Computing cosine similarity
-        dot_products = np.dot(start_vectors, all_vectors.T)
-        norm_products = np.outer(start_norms, all_norms)
-        cosine_similarities = dot_products / norm_products
-
+        # 2.4 Computing cosine similarity
+        cosine_similarities = np.dot(start_vectors, all_vectors.T)
 
         # Using cosine similarity to find candidates
         diffs = np.abs(cosine_similarities - start_scores[:, np.newaxis])
