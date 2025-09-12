@@ -115,6 +115,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">user_agent</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;user_agent&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;content_type&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;max_retries&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">similarity_delta</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;similarity_delta&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="n">CaseInsensitiveDict</span><span class="p">({</span>
             <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span>
@@ -224,7 +225,6 @@
 
         <span class="n">word_found</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">best_score</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.001</span>
 
 
         <span class="k">if</span> <span class="n">day</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -276,7 +276,7 @@
 
         <span class="c1"># Using cosine similarity to find candidates</span>
         <span class="n">diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">cosine_similarities</span> <span class="o">-</span> <span class="n">start_scores</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
-        <span class="n">matches</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">diffs</span> <span class="o">&lt;=</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">diffs</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">similarity_delta</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">matching_words</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_words</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ok</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="k">if</span> <span class="n">ok</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">matching_words</span><span class="p">)</span><span class="si">}</span><span class="s2"> matching candidates found after vectorized filtering.&quot;</span><span class="p">)</span>
