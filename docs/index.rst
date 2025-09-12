@@ -5,5 +5,5 @@
    :maxdepth: 2
    :caption: Documentation
 
-
+   solving-methods
    modules
