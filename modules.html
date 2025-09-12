@@ -156,8 +156,8 @@ to guess the hidden word by querying the Cemantix API for similarity scores.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntfy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/CemantixSolver.html#CemantixSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.solve" title="Link to this definition"></a></dt>
-<dd><p>Solving the Cemantix puzzle using a local strategy. The goal is to save the score of the 4 starting words and
-check inside of the model if there is words that matches similarity scores</p>
+<dd><p>Optimized Cemantix solver using NumPy vectorization to find words whose similarity
+with the start words exactly matches the expected values (within a small epsilon).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
