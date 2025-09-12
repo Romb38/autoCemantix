@@ -46,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="solving-methods.html">Solving Methods</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Technical documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver"><code class="docutils literal notranslate"><span class="pre">CemantixSolver</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__fetch_scores_parallel"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__fetch_scores_parallel()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__get_puzzle_number"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__get_puzzle_number()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__get_score"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__get_score()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#src.CemantixSolver.CemantixSolver.__log_and_notify"><code class="docutils literal notranslate"><span class="pre">CemantixSolver.__log_and_notify()</span></code></a></li>
@@ -92,6 +93,24 @@
 <p>Automatic solver for the Cemantix word game.</p>
 <p>This solver uses a Word2Vec model and a beam search strategy
 to guess the hidden word by querying the Cemantix API for similarity scores.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__fetch_scores_parallel">
+<span class="sig-name descname"><span class="pre">__fetch_scores_parallel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">words</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__fetch_scores_parallel" title="Link to this definition"></a></dt>
+<dd><p>Fetches the scores for a list of words in parallel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>words</strong> (<em>list</em>) – List of words to score.</p></li>
+<li><p><strong>day</strong> (<em>int</em>) – Puzzle number.</p></li>
+<li><p><strong>max_workers</strong> (<em>int</em>) – Maximum number of concurrent threads.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary {word: score} of valid words and their scores.</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="src.CemantixSolver.CemantixSolver.__get_puzzle_number">
 <span class="sig-name descname"><span class="pre">__get_puzzle_number</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.CemantixSolver.CemantixSolver.__get_puzzle_number" title="Link to this definition"></a></dt>

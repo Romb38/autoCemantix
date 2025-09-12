@@ -83,6 +83,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">concurrent.futures</span>
 
 <div class="viewcode-block" id="CemantixSolver">
 <a class="viewcode-back" href="../../modules.html#src.CemantixSolver.CemantixSolver">[docs]</a>
@@ -116,6 +117,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;content_type&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;max_retries&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">similarity_delta</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;similarity_delta&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_workers</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;max_workers&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="n">CaseInsensitiveDict</span><span class="p">({</span>
             <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span>
@@ -207,6 +209,36 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No NTFY config found, set it up inside of .env file&quot;</span><span class="p">)</span>
 
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__fetch_scores_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">,</span> <span class="n">day</span><span class="p">,</span> <span class="n">max_workers</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetches the scores for a list of words in parallel.</span>
+
+<span class="sd">        :param list words: List of words to score.</span>
+<span class="sd">        :param int day: Puzzle number.</span>
+<span class="sd">        :param int max_workers: Maximum number of concurrent threads.</span>
+<span class="sd">        :returns: Dictionary {word: score} of valid words and their scores.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">startings_score</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fetch_score</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_score</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">day</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">word</span><span class="p">,</span> <span class="n">score</span>
+
+        <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">max_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+            <span class="n">future_to_word</span> <span class="o">=</span> <span class="p">{</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">fetch_score</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span> <span class="n">w</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">as_completed</span><span class="p">(</span><span class="n">future_to_word</span><span class="p">):</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">future_to_word</span><span class="p">[</span><span class="n">future</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">word</span><span class="p">,</span> <span class="n">score</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">request_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">startings_score</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="n">score</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Error fetching score for word </span><span class="si">%r</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">startings_score</span>
+
 <div class="viewcode-block" id="CemantixSolver.solve">
 <a class="viewcode-back" href="../../modules.html#src.CemantixSolver.CemantixSolver.solve">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntfy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -226,23 +258,21 @@
         <span class="n">word_found</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">best_score</span> <span class="o">=</span> <span class="mf">0.0</span>
 
-
         <span class="k">if</span> <span class="n">day</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_puzzle_number</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">day</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="c1"># 1. Getting initial words score</span>
-        <span class="n">startings_score</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_words</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">request_count</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_score</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">day</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">score</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Solution found as a starting word: </span><span class="si">%s</span><span class="s2"> → </span><span class="si">%.4f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
-                    <span class="n">word_found</span> <span class="o">=</span> <span class="n">w</span>
-                    <span class="k">break</span>
-                <span class="n">startings_score</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="n">score</span>
+        <span class="c1"># Fecthing starting words score</span>
+        <span class="n">startings_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__fetch_scores_parallel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_words</span><span class="p">,</span> <span class="n">day</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_workers</span><span class="p">)</span>
+
+        <span class="c1"># Check if we have already found a solution</span>
+        <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">startings_score</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">score</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Solution found as a starting word: </span><span class="si">%s</span><span class="s2"> → </span><span class="si">%.4f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+                <span class="n">word_found</span> <span class="o">=</span> <span class="n">w</span>
+                <span class="k">break</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting scores: </span><span class="si">{</span><span class="n">startings_score</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">word_found</span><span class="p">:</span>
@@ -253,7 +283,6 @@
             <span class="k">return</span> <span class="n">word_found</span><span class="p">,</span> <span class="mf">1.0</span>
 
         <span class="c1"># 2. Computing cosine similarity between all words and starting words</span>
-
         <span class="c1"># 2.1 Getting starting words vectors</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">start_vectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_vector</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">startings_score</span><span class="p">])</span>
