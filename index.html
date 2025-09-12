@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🛠️ Installation &mdash; autoCemantix 0.1.0 documentation</title>
+  <title>Fetching project &mdash; autoCemantix 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -60,7 +60,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">🛠️ Installation</li>
+      <li class="breadcrumb-item active">Fetching project</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -81,6 +81,24 @@
   </a>
 </p>
 <p>This project aims to automatically solve the <a class="reference external" href="https://cemantix.certitudes.org/">Cemantix puzzle</a> as quickly and efficiently as possible.</p>
+<section id="fetching-project">
+<h1>Fetching project<a class="headerlink" href="#fetching-project" title="Link to this heading"></a></h1>
+<p>This project use <code class="docutils literal notranslate"><span class="pre">git-lfs</span></code> to store the model inside of the repository. You’ll need to install it if you want to pull the right model. On Debian based computer :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Installation</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>git-lfs
+git<span class="w"> </span>lfs<span class="w"> </span>install
+
+<span class="c1"># Fetching the model</span>
+git<span class="w"> </span>lfs<span class="w"> </span>pull
+</pre></div>
+</div>
+<p>You can also download it by yourself :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># On project root</span>
+
+curl<span class="w"> </span>https://github.com/Romb38/autoCemantix/raw/refs/heads/master/src/resources/frWac.bin<span class="w"> </span>-o<span class="w"> </span>src/resources/frWac.bin
+</pre></div>
+</div>
+</section>
 <section id="installation">
 <h1>🛠️ Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># On project root</span>
