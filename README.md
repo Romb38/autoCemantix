@@ -9,7 +9,7 @@
   </a>
 </p>
 
-This project aims to automatically solve the [Cemantix puzzle](https://cemantix.certitudes.org/) as quickly and efficiently as possible.
+This project aims to automatically solve the [Cemantix puzzle](https://cemantix.certitudes.org/) as quickly and efficiently as possible. The method is described in [documentation](https://romb38.github.io/autoCemantix/)
 
 ## 📂 Fetching project
 
