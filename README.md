@@ -11,7 +11,7 @@
 
 This project aims to automatically solve the [Cemantix puzzle](https://cemantix.certitudes.org/) as quickly and efficiently as possible.
 
-## Fetching project
+## 📂 Fetching project
 
 This project use `git-lfs` to store the model inside of the repository. You'll need to install it if you want to pull the right model. On Debian based computer :
 
