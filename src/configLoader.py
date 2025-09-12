@@ -29,6 +29,7 @@ def load_config(filename="src/resources/config.ini"):
     config = {
         "start_words": [w.strip() for w in cfg.get("start_words", "").split(",")],
         "api_delay": cfg.getfloat("api_delay", 1.0),
+        "similarity_delta": cfg.getfloat("similarity_deta", 0.001),
         "model_path": cfg.get("model_path", "frWac.bin"),
         "schema": cfg.get("schema", "https"),
         "url": cfg.get("url", "cemantix.certitudes.org"),

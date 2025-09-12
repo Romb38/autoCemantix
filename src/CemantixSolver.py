@@ -41,6 +41,7 @@ class CemantixSolver:
         self.user_agent = config["user_agent"]
         self.content_type = config["content_type"]
         self.max_retries = config["max_retries"]
+        self.similarity_delta = config["similarity_delta"]
 
         self.headers = CaseInsensitiveDict({
             "Content-Type": self.content_type,
@@ -148,7 +149,6 @@ class CemantixSolver:
 
         word_found = None
         best_score = 0.0
-        epsilon = 0.001
 
 
         if day is None:
@@ -200,7 +200,7 @@ class CemantixSolver:
 
         # Using cosine similarity to find candidates
         diffs = np.abs(cosine_similarities - start_scores[:, np.newaxis])
-        matches = np.all(diffs <= epsilon, axis=0)
+        matches = np.all(diffs <= self.similarity_delta, axis=0)
         matching_words = [all_words[i] for i, ok in enumerate(matches) if ok]
 
         self.logger.info(f"{len(matching_words)} matching candidates found after vectorized filtering.")
