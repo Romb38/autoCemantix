@@ -11,6 +11,28 @@
 
 This project aims to automatically solve the [Cemantix puzzle](https://cemantix.certitudes.org/) as quickly and efficiently as possible.
 
+## Fetching project
+
+This project use `git-lfs` to store the model inside of the repository. You'll need to install it if you want to pull the right model. On Debian based computer :
+
+```bash
+# Installation
+sudo apt install git-lfs
+git lfs install
+
+# Fetching the model
+git lfs pull
+```
+
+You can also download it by yourself :
+
+```bash
+# On project root
+
+curl https://github.com/Romb38/autoCemantix/raw/refs/heads/master/src/resources/frWac.bin -o src/resources/frWac.bin
+```
+
+
 ## 🛠️ Installation
 
 ```bash
