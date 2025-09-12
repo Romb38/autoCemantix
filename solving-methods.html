@@ -81,7 +81,7 @@
 <p><em>Average solving time</em> : 0.5 seconds (with filtered model)</p>
 <p>In this project, I’ve implemented several methods to solve <strong>Cemantix</strong>. Here’s how the current approach works:</p>
 <ol class="arabic simple">
-<li><p>I request the score for a set of starting words (defined in the configuration file).</p></li>
+<li><p>I request the score for a set of starting words (defined in the configuration file) using parallelization.</p></li>
 <li><p>Using <strong>NumPy</strong>, I compute the <a class="reference external" href="https://en.wikipedia.org/wiki/Cosine_similarity">cosine similarity</a> between every word and the starting words.</p></li>
 <li><p>I then filter and save the words whose cosine similarity is approximately equal to the score of the starting words (within a small epsilon).</p></li>
 <li><p>For each word identified in step 3, I request its Cemantix score:</p>
