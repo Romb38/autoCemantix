@@ -11,6 +11,7 @@ import time
 from dotenv import load_dotenv
 import csv
 import numpy as np
+import concurrent.futures
 
 class CemantixSolver:
     """
@@ -42,6 +43,7 @@ class CemantixSolver:
         self.content_type = config["content_type"]
         self.max_retries = config["max_retries"]
         self.similarity_delta = config["similarity_delta"]
+        self.max_workers = config["max_workers"]
 
         self.headers = CaseInsensitiveDict({
             "Content-Type": self.content_type,
@@ -133,6 +135,36 @@ class CemantixSolver:
             self.logger.error("No NTFY config found, set it up inside of .env file")
 
 
+
+    def __fetch_scores_parallel(self, words, day, max_workers=5):
+        """
+        Fetches the scores for a list of words in parallel.
+
+        :param list words: List of words to score.
+        :param int day: Puzzle number.
+        :param int max_workers: Maximum number of concurrent threads.
+        :returns: Dictionary {word: score} of valid words and their scores.
+        """
+        startings_score = {}
+
+        def fetch_score(word):
+            score = self.__get_score(word, day)
+            return word, score
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_word = {executor.submit(fetch_score, w): w for w in words}
+            for future in concurrent.futures.as_completed(future_to_word):
+                w = future_to_word[future]
+                try:
+                    word, score = future.result()
+                    self.request_count += 1
+                    if score is not None:
+                        startings_score[word] = score
+                except Exception as exc:
+                    self.logger.warning('Error fetching score for word %r: %s', w, exc)
+
+        return startings_score
+
     def solve(self, day=None, ntfy=False):
         """
         Optimized Cemantix solver using NumPy vectorization to find words whose similarity
@@ -150,23 +182,21 @@ class CemantixSolver:
         word_found = None
         best_score = 0.0
 
-
         if day is None:
             day = self.__get_puzzle_number()
             if day is None:
                 return None
 
-        # 1. Getting initial words score
-        startings_score = {}
-        for w in self.start_words:
-            self.request_count += 1
-            score = self.__get_score(w, day)
-            if score is not None:
-                if score == 1.0:
-                    self.logger.info("Solution found as a starting word: %s → %.4f", w, 1.0)
-                    word_found = w
-                    break
-                startings_score[w] = score
+        # Fecthing starting words score
+        startings_score = self.__fetch_scores_parallel(self.start_words, day, self.max_workers)
+
+        # Check if we have already found a solution
+        for w, score in startings_score.items():
+            if score == 1.0:
+                self.logger.info("Solution found as a starting word: %s → %.4f", w, 1.0)
+                word_found = w
+                break
+
         self.logger.info(f"Starting scores: {startings_score}")
 
         if word_found:
@@ -177,7 +207,6 @@ class CemantixSolver:
             return word_found, 1.0
 
         # 2. Computing cosine similarity between all words and starting words
-
         # 2.1 Getting starting words vectors
         try:
             start_vectors = np.array([self.model.get_vector(w) for w in startings_score])
